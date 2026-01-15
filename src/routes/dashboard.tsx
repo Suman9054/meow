@@ -79,7 +79,8 @@ function Dashboard() {
 
           <div className="flex flex-wrap gap-2">
             <Link
-              to="/chat"
+              to="/workspace/$id"
+              params={{ id: 'new-project' }}
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs md:text-sm font-medium text-primary-foreground shadow shadow-cyan-500/40 hover:bg-primary/90 transition-colors"
             >
               <Plus className="w-4 h-4" />
@@ -112,8 +113,8 @@ function Dashboard() {
                   <div className="flex flex-col items-end gap-2">
                     {statusBadge(project.status)}
                     <Link
-                      to="/chat"
-                      search={{ projectId: project.id }}
+                      to="/workspace/$id"
+                      params={{ id: project.id }}
                       className="text-[11px] font-medium text-cyan-300 hover:text-cyan-200"
                     >
                       Open in workspace
