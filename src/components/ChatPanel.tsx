@@ -62,7 +62,7 @@ const TypingIndicator: React.FC = () => (
 )
 
 export const ChatPanel: React.FC = () => {
-  const { messages, isTyping, sendMessage, clearMessages } = useChatStore()
+  const { messages, sendMessage, clearMessages } = useChatStore()
   const [input, setInput] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -73,11 +73,11 @@ export const ChatPanel: React.FC = () => {
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages, isTyping])
+  }, [messages])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (input.trim() && !isTyping) {
+    if (input.trim()) {
       sendMessage(input.trim())
       setInput('')
     }
@@ -117,7 +117,7 @@ export const ChatPanel: React.FC = () => {
         {messages.map((message) => (
           <ChatBubble key={message.id} message={message} />
         ))}
-        {isTyping && <TypingIndicator />}
+        {/*isTyping && <TypingIndicator />*/}
         <div ref={messagesEndRef} />
       </div>
 
@@ -130,7 +130,7 @@ export const ChatPanel: React.FC = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything..."
-            disabled={isTyping}
+
             rows={1}
             className={cn(
               'w-full px-4 py-3 pr-12 bg-muted rounded-xl resize-none text-sm',
@@ -143,10 +143,10 @@ export const ChatPanel: React.FC = () => {
           />
           <button
             type="submit"
-            disabled={!input.trim() || isTyping}
+
             className={cn(
               'absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all',
-              input.trim() && !isTyping
+              input.trim()
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                 : 'bg-muted text-muted-foreground cursor-not-allowed',
             )}
