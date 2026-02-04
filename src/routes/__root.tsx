@@ -39,7 +39,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-
         {children}
         <TanStackDevtools
           config={{
@@ -50,10 +49,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               name: 'Tanstack Router',
               render: <TanStackRouterDevtoolsPanel />,
             },
-            aiDevtoolsPlugin()
+            aiDevtoolsPlugin(),
           ]}
           eventBusConfig={{
-            connectToServerBus: true
+            connectToServerBus: true,
           }}
         />
         <Scripts />

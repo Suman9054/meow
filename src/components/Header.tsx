@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
-import { ArrowRight, Bot, FolderGit2, LayoutDashboard, LogIn, X } from 'lucide-react'
+import { ArrowRight, Bot, LayoutDashboard, LogIn, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export default function Header() {
@@ -25,15 +25,25 @@ export default function Header() {
             <Bot className="w-4 h-4" />
           </div>
           <div className="leading-tight">
-            <p className="text-sm font-semibold text-slate-50">AI Code Studio</p>
-            <p className="text-[11px] text-slate-500">Workspace-aware coding assistant</p>
+            <p className="text-sm font-semibold text-slate-50">
+              AI Code Studio
+            </p>
+            <p className="text-[11px] text-slate-500">
+              Workspace-aware coding assistant
+            </p>
           </div>
         </div>
 
         {/* Nav */}
         <nav className="hidden items-center gap-1 md:flex">
-          <Link to="/" className={navLinkClass('/')}>Home</Link>
-          <Link to="/chat" className={navLinkClass('/chat')}>
+          <Link to="/" className={navLinkClass('/')}>
+            Home
+          </Link>
+          <Link
+            to="/workspace/$id"
+            params={{ id: 'default' }}
+            className={navLinkClass('/workspace')}
+          >
             <span>Workspace</span>
           </Link>
           <Link to="/dashboard" className={navLinkClass('/dashboard')}>
@@ -96,8 +106,8 @@ export default function Header() {
                 <div className="space-y-2 text-[11px] text-slate-400">
                   <p className="font-medium text-slate-100">New here?</p>
                   <p>
-                    Create an account to save projects, sync conversations, and pick up where you
-                    left off.
+                    Create an account to save projects, sync conversations, and
+                    pick up where you left off.
                   </p>
                   <button className="w-full rounded-lg border border-cyan-500/60 bg-slate-900/60 px-3 py-1.5 text-[11px] font-medium text-cyan-200 hover:bg-slate-900 transition-colors">
                     Create free account

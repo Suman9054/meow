@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import { X } from 'lucide-react'
 import { useEditorStore } from '@/stores/editorStore'
@@ -34,7 +35,9 @@ export const EditorTabs: React.FC = () => {
             }}
             className={cn(
               'p-0.5 rounded hover:bg-muted transition-colors',
-              activeFile === fileId ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+              activeFile === fileId
+                ? 'opacity-100'
+                : 'opacity-0 group-hover:opacity-100',
             )}
           >
             <X size={14} />

@@ -1,11 +1,13 @@
+'use client'
 import React from 'react'
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import { FileExplorer } from '@/components/file-explorer/FileExplorer'
-import { CodeEditor } from '@/components/editor/CodeEditor'
+import { CodeEditor } from '@/components/editor/CodeEditor.$'
 import { AppPreview } from '@/components/preview/AppPreview'
 import { ChatPanel } from '@/components/ChatPanel'
 import { TopBar } from './TopBar'
 import { useUIStore } from '@/stores/uiStore'
+import { ChatClient } from '../chatclient'
 
 export const MainLayout: React.FC = () => {
   const { activePanel, isChatOpen, isSidebarOpen } = useUIStore()
@@ -32,7 +34,10 @@ export const MainLayout: React.FC = () => {
               {/* Code Editor */}
               {(activePanel === 'code' || activePanel === 'split') && (
                 <>
-                  <Panel defaultSize={activePanel === 'split' ? 50 : 100} minSize={30}>
+                  <Panel
+                    defaultSize={activePanel === 'split' ? 50 : 100}
+                    minSize={30}
+                  >
                     <CodeEditor />
                   </Panel>
                   {activePanel === 'split' && (
@@ -43,7 +48,10 @@ export const MainLayout: React.FC = () => {
 
               {/* App Preview */}
               {(activePanel === 'preview' || activePanel === 'split') && (
-                <Panel defaultSize={activePanel === 'split' ? 50 : 100} minSize={30}>
+                <Panel
+                  defaultSize={activePanel === 'split' ? 50 : 100}
+                  minSize={30}
+                >
                   <AppPreview />
                 </Panel>
               )}
@@ -61,6 +69,7 @@ export const MainLayout: React.FC = () => {
           )}
         </PanelGroup>
       </div>
+      <ChatClient />
     </div>
   )
 }

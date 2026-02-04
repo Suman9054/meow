@@ -23,7 +23,8 @@ export const useUIStore = create<UIState>((set) => ({
 
   toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
 
-  toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+  toggleSidebar: () =>
+    set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
 
   setChatPosition: (position) => set({ chatPosition: position }),
 }))

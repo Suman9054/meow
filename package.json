@@ -8,8 +8,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
-    "format": "prettier --write",
-    "check": "prettier --write . && eslint --fix"
+    "format": "prettier --write .",
+    "check": "prettier --write . && eslint --fix ."
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
@@ -37,6 +37,7 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.21.2",
     "@tanstack/devtools-vite": "^0.3.11",
     "@tanstack/eslint-config": "^0.3.0",
     "@tanstack/react-ai-devtools": "^0.2.0",

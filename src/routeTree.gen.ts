@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkspaceIdRouteImport } from './routes/workspace.$id'
+import { Route as ApiExecRouteImport } from './routes/api.exec'
 import { Route as ApiAgentRouteImport } from './routes/api.agent'
 
 const DashboardRoute = DashboardRouteImport.update({
@@ -29,6 +30,11 @@ const WorkspaceIdRoute = WorkspaceIdRouteImport.update({
   path: '/workspace/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiExecRoute = ApiExecRouteImport.update({
+  id: '/api/exec',
+  path: '/api/exec',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAgentRoute = ApiAgentRouteImport.update({
   id: '/api/agent',
   path: '/api/agent',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/api/agent': typeof ApiAgentRoute
+  '/api/exec': typeof ApiExecRoute
   '/workspace/$id': typeof WorkspaceIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/api/agent': typeof ApiAgentRoute
+  '/api/exec': typeof ApiExecRoute
   '/workspace/$id': typeof WorkspaceIdRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,28 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/api/agent': typeof ApiAgentRoute
+  '/api/exec': typeof ApiExecRoute
   '/workspace/$id': typeof WorkspaceIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/api/agent' | '/workspace/$id'
+  fullPaths: '/' | '/dashboard' | '/api/agent' | '/api/exec' | '/workspace/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/api/agent' | '/workspace/$id'
-  id: '__root__' | '/' | '/dashboard' | '/api/agent' | '/workspace/$id'
+  to: '/' | '/dashboard' | '/api/agent' | '/api/exec' | '/workspace/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/api/agent'
+    | '/api/exec'
+    | '/workspace/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   ApiAgentRoute: typeof ApiAgentRoute
+  ApiExecRoute: typeof ApiExecRoute
   WorkspaceIdRoute: typeof WorkspaceIdRoute
 }
 
@@ -92,6 +108,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/exec': {
+      id: '/api/exec'
+      path: '/api/exec'
+      fullPath: '/api/exec'
+      preLoaderRoute: typeof ApiExecRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/agent': {
       id: '/api/agent'
       path: '/api/agent'
@@ -106,6 +129,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   ApiAgentRoute: ApiAgentRoute,
+  ApiExecRoute: ApiExecRoute,
   WorkspaceIdRoute: WorkspaceIdRoute,
 }
 export const routeTree = rootRouteImport

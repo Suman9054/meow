@@ -5,7 +5,9 @@ import { cn } from '@/lib/utils'
 
 export const AppPreview: React.FC = () => {
   const { previewKey, isLoading, refreshPreview } = usePreviewStore()
-  const [viewMode, setViewMode] = React.useState<'desktop' | 'mobile'>('desktop')
+  const [viewMode, setViewMode] = React.useState<'desktop' | 'mobile'>(
+    'desktop',
+  )
 
   const previewContent = `<!DOCTYPE html>
     <html lang="en">
@@ -159,7 +161,9 @@ export const AppPreview: React.FC = () => {
       <div className="flex items-center gap-2 px-4 py-2 bg-panel border-b border-panel-border">
         <div className="flex-1 flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md">
           <span className="text-xs text-syntax-string">●</span>
-          <span className="text-sm text-muted-foreground font-mono">localhost:5173</span>
+          <span className="text-sm text-muted-foreground font-mono">
+            localhost:5173
+          </span>
         </div>
       </div>
 
@@ -175,7 +179,9 @@ export const AppPreview: React.FC = () => {
             <div className="h-full flex items-center justify-center">
               <div className="flex flex-col items-center gap-3">
                 <RefreshCw size={24} className="animate-spin text-primary" />
-                <span className="text-sm text-muted-foreground">Loading preview...</span>
+                <span className="text-sm text-muted-foreground">
+                  Loading preview...
+                </span>
               </div>
             </div>
           ) : (

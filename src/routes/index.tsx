@@ -1,13 +1,6 @@
 import { useRef, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  ArrowRight,
-  Bot,
-  Code2,
-  FolderGit2,
-  LayoutPanelLeft,
-  Sparkles,
-} from 'lucide-react'
+import { ArrowRight, Code2, LayoutPanelLeft, Sparkles } from 'lucide-react'
 import Header from '@/components/Header'
 
 export const Route = createFileRoute('/')({ component: Home })
@@ -15,10 +8,6 @@ export const Route = createFileRoute('/')({ component: Home })
 function Home() {
   const [prompt, setPrompt] = useState('')
   const chatSectionRef = useRef<HTMLDivElement | null>(null)
-
-  const handleGetStarted = () => {
-    chatSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,7 +30,7 @@ function Home() {
         'Inspect files, preview UI, and iterate quickly without leaving the browser.',
     },
     {
-      icon: <FolderGit2 className="w-5 h-5 text-cyan-400" />,
+      icon: <Sparkles className="w-5 h-5 text-cyan-400" />,
       title: 'Project-based workflows',
       description:
         'Organize work into projects with saved prompts and generated changes.',
@@ -49,7 +38,6 @@ function Home() {
   ]
 
   return (
-
     <>
       <Header />
       <div className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-foreground overflow-hidden">
@@ -76,8 +64,9 @@ function Home() {
               </h1>
 
               <p className="text-base md:text-lg text-slate-400 max-w-xl mx-auto mb-8">
-                Ask in natural language. Watch your project-aware AI assistant explore files,
-                update code, and keep everything in sync—directly inside your browser.
+                Ask in natural language. Watch your project-aware AI assistant
+                explore files, update code, and keep everything in sync—directly
+                inside your browser.
               </p>
 
               <div className="grid gap-4 sm:grid-cols-3 text-sm">
@@ -116,11 +105,15 @@ function Home() {
                 Start with a prompt
               </p>
               <p className="text-sm text-slate-300">
-                Describe what you want to build and we'll guide you into the full workspace.
+                Describe what you want to build and we'll guide you into the
+                full workspace.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-800 bg-slate-900/90 p-5 md:p-7 shadow-2xl shadow-cyan-500/10">
+            <form
+              onSubmit={handleSubmit}
+              className="rounded-3xl border border-slate-800 bg-slate-900/90 p-5 md:p-7 shadow-2xl shadow-cyan-500/10"
+            >
               <div className="flex flex-col gap-4">
                 <textarea
                   rows={5}
@@ -130,7 +123,9 @@ function Home() {
                   className="min-h-[120px] w-full resize-none bg-slate-950/60 px-4 py-3 text-base md:text-lg text-slate-100 placeholder:text-slate-500 rounded-2xl border border-slate-800 focus:outline-none focus:ring-1 focus:ring-cyan-500/80"
                 />
                 <div className="flex items-center justify-between gap-3 text-[11px] text-slate-500">
-                  <span>Tip: be specific about components, data, and tech stack.</span>
+                  <span>
+                    Tip: be specific about components, data, and tech stack.
+                  </span>
                   <button
                     type="submit"
                     disabled={!prompt.trim()}
@@ -147,7 +142,9 @@ function Home() {
 
         <footer className="border-t border-slate-800/80 bg-slate-950/90 py-4">
           <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500">
-            <span>© {new Date().getFullYear()} AI Code Studio. All rights reserved.</span>
+            <span>
+              © {new Date().getFullYear()} AI Code Studio. All rights reserved.
+            </span>
             <span>Workspace powered by TanStack Start.</span>
           </div>
         </footer>

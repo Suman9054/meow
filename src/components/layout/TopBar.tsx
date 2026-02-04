@@ -1,11 +1,25 @@
+'use client'
 import React from 'react'
-import { Code, Eye, Columns, MessageSquare, PanelLeft, Settings } from 'lucide-react'
+import {
+  Code,
+  Eye,
+  Columns,
+  MessageSquare,
+  PanelLeft,
+  Settings,
+} from 'lucide-react'
 import { useUIStore } from '@/stores/uiStore'
 import { cn } from '@/lib/utils'
 
 export const TopBar: React.FC = () => {
-  const { activePanel, setActivePanel, isChatOpen, toggleChat, isSidebarOpen, toggleSidebar } =
-    useUIStore()
+  const {
+    activePanel,
+    setActivePanel,
+    isChatOpen,
+    toggleChat,
+    isSidebarOpen,
+    toggleSidebar,
+  } = useUIStore()
 
   return (
     <header className="h-12 flex items-center justify-between px-4 bg-panel-header border-b border-panel-border">

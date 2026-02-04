@@ -1,7 +1,8 @@
+'use client'
 import React from 'react'
 import Editor from '@monaco-editor/react'
 import { useEditorStore } from '@/stores/editorStore'
-import { EditorTabs } from './EditorTabs'
+import { EditorTabs } from './EditorTabs.$'
 
 export const CodeEditor: React.FC = () => {
   const { activeFile, getFileContent } = useEditorStore()
@@ -46,7 +47,9 @@ export const CodeEditor: React.FC = () => {
           <div className="h-full flex items-center justify-center text-muted-foreground">
             <div className="text-center">
               <p className="text-lg mb-2">No file selected</p>
-              <p className="text-sm">Select a file from the explorer to view its contents</p>
+              <p className="text-sm">
+                Select a file from the explorer to view its contents
+              </p>
             </div>
           </div>
         )}

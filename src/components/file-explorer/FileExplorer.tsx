@@ -1,5 +1,12 @@
+'use client'
 import React from 'react'
-import { ChevronRight, ChevronDown, File, Folder, FolderOpen } from 'lucide-react'
+import {
+  ChevronRight,
+  ChevronDown,
+  File,
+  Folder,
+  FolderOpen,
+} from 'lucide-react'
 import { useEditorStore, FileNode } from '@/stores/editorStore'
 import { cn } from '@/lib/utils'
 
@@ -9,7 +16,9 @@ interface FileTreeItemProps {
 }
 
 const FileTreeItem: React.FC<FileTreeItemProps> = ({ node, depth }) => {
-  const { activeFile, expandedFolders, setActiveFile, toggleFolder } = useEditorStore()
+  const { activeFile, expandedFolders, setActiveFile, toggleFolder } =
+    useEditorStore()
+
   const isExpanded = expandedFolders.has(node.id)
   const isActive = activeFile === node.id
 
@@ -29,10 +38,14 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ node, depth }) => {
       return <span className="text-syntax-keyword text-xs font-bold">#</span>
     }
     if (fileName.endsWith('.json')) {
-      return <span className="text-syntax-number text-xs font-bold">{'{}'}</span>
+      return (
+        <span className="text-syntax-number text-xs font-bold">{'{}'}</span>
+      )
     }
     if (fileName.endsWith('.html')) {
-      return <span className="text-syntax-string text-xs font-bold">&lt;&gt;</span>
+      return (
+        <span className="text-syntax-string text-xs font-bold">&lt;&gt;</span>
+      )
     }
     return <File size={14} className="text-muted-foreground" />
   }
@@ -42,7 +55,7 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ node, depth }) => {
       <button
         onClick={handleClick}
         className={cn(
-          'w-full flex items-center gap-1.5 px-2 py-1 text-sm text-left transition-colors rounded-sm',
+          'w-full flex items-center gap-1.5 px-2 py-1 text-sm text-left rounded-sm transition-colors',
           'hover:bg-sidebar-hover',
           isActive && 'bg-sidebar-hover text-sidebar-active',
         )}
@@ -51,20 +64,20 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ node, depth }) => {
         {node.type === 'folder' ? (
           <>
             {isExpanded ? (
-              <ChevronDown size={14} className="text-muted-foreground shrink-0" />
+              <ChevronDown size={14} className="text-muted-foreground" />
             ) : (
-              <ChevronRight size={14} className="text-muted-foreground shrink-0" />
+              <ChevronRight size={14} className="text-muted-foreground" />
             )}
             {isExpanded ? (
-              <FolderOpen size={14} className="text-syntax-function shrink-0" />
+              <FolderOpen size={14} className="text-syntax-function" />
             ) : (
-              <Folder size={14} className="text-syntax-function shrink-0" />
+              <Folder size={14} className="text-syntax-function" />
             )}
           </>
         ) : (
           <>
             <span className="w-3.5" />
-            <span className="w-3.5 flex items-center justify-center shrink-0">
+            <span className="w-3.5 flex items-center justify-center">
               {getFileIcon(node.name)}
             </span>
           </>
@@ -72,7 +85,9 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ node, depth }) => {
         <span
           className={cn(
             'truncate',
-            node.type === 'folder' ? 'text-sidebar-foreground' : 'text-foreground/80',
+            node.type === 'folder'
+              ? 'text-sidebar-foreground'
+              : 'text-foreground/80',
           )}
         >
           {node.name}
@@ -100,7 +115,7 @@ export const FileExplorer: React.FC = () => {
           Explorer
         </h2>
       </div>
-      <div className="flex-1 overflow-auto scrollbar-thin py-2">
+      <div className="flex-1 overflow-auto py-2">
         {fileTree.map((node) => (
           <FileTreeItem key={node.id} node={node} depth={0} />
         ))}

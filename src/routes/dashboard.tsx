@@ -72,8 +72,8 @@ function Dashboard() {
               Your projects
             </h1>
             <p className="mt-1 text-sm text-slate-400 max-w-xl">
-              Create dedicated spaces for each app or experiment. Projects keep chat history,
-              code context, and previews organized.
+              Create dedicated spaces for each app or experiment. Projects keep
+              chat history, code context, and previews organized.
             </p>
           </div>
 
@@ -126,8 +126,8 @@ function Dashboard() {
 
             <div className="mt-2 rounded-2xl border border-dashed border-slate-700 bg-slate-950/50 px-4 py-3 flex items-center justify-between text-xs text-slate-400">
               <span>
-                This dashboard is purely client-side and uses mock data. Wire it up to your
-                own API or database when you are ready.
+                This dashboard is purely client-side and uses mock data. Wire it
+                up to your own API or database when you are ready.
               </span>
             </div>
           </section>
@@ -140,17 +140,29 @@ function Dashboard() {
                 Quick start
               </h3>
               <ul className="space-y-2 text-xs text-slate-400">
-                <li>• Create a new project and describe the feature you want in the Chat route.</li>
-                <li>• Use the workspace to inspect generated code and adjust prompts.</li>
-                <li>• When you are happy, copy changes into your main repo or connect Git.</li>
+                <li>
+                  • Create a new project and describe the feature you want in
+                  the Chat route.
+                </li>
+                <li>
+                  • Use the workspace to inspect generated code and adjust
+                  prompts.
+                </li>
+                <li>
+                  • When you are happy, copy changes into your main repo or
+                  connect Git.
+                </li>
               </ul>
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 text-xs text-slate-400 space-y-2">
-              <p className="font-semibold text-slate-100 text-sm mb-1">Coming next</p>
+              <p className="font-semibold text-slate-100 text-sm mb-1">
+                Coming next
+              </p>
               <p>
-                Hook this dashboard into real authentication and persistence: user accounts,
-                per-project settings, and environment configuration.
+                Hook this dashboard into real authentication and persistence:
+                user accounts, per-project settings, and environment
+                configuration.
               </p>
             </div>
           </aside>

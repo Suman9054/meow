@@ -1,6 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, Sparkles, Trash2, MoreVertical } from 'lucide-react'
-import { useChatStore, ChatMessage } from '@/stores/chatStore'
+import {
+  Send,
+  Sparkles,
+  Trash2,
+  MoreVertical,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react'
+import { useChatStore, ChatMessage, useSendChatStore } from '@/stores/chatStore'
 import { cn } from '@/lib/utils'
 
 const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
@@ -66,6 +73,8 @@ export const ChatPanel: React.FC = () => {
   const [input, setInput] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const { setContent, setIsSend, error, setError } = useSendChatStore()
+  const [isLoading, setIsLoading] = useState(false)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -75,16 +84,31 @@ export const ChatPanel: React.FC = () => {
     scrollToBottom()
   }, [messages])
 
+  // Auto-clear error after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [error, setError])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (input.trim()) {
+    if (input.trim() && !isLoading) {
+      setIsLoading(true)
       sendMessage(input.trim())
+      setContent(input.trim())
+      setIsSend(false)
       setInput('')
+
+      // Reset loading state after response completes
+      const timer = setTimeout(() => setIsLoading(false), 30000) // 30 second timeout
+      return () => clearTimeout(timer)
     }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
       e.preventDefault()
       handleSubmit(e)
     }
@@ -97,16 +121,26 @@ export const ChatPanel: React.FC = () => {
         <div className="flex items-center gap-2">
           <Sparkles size={18} className="text-primary" />
           <span className="font-medium text-sm">AI Assistant</span>
+          {isLoading && (
+            <Loader2 size={16} className="animate-spin text-primary ml-1" />
+          )}
         </div>
         <div className="flex items-center gap-1">
           <button
-            onClick={clearMessages}
+            onClick={() => {
+              clearMessages()
+              setError(null)
+            }}
             className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             title="Clear chat"
+            disabled={isLoading}
           >
             <Trash2 size={16} />
           </button>
-          <button className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+          <button
+            className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            disabled={isLoading}
+          >
             <MoreVertical size={16} />
           </button>
         </div>
@@ -114,10 +148,22 @@ export const ChatPanel: React.FC = () => {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-4">
+        {/* Error message */}
+        {error && (
+          <div className="flex gap-3 mb-4">
+            <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
+              <AlertCircle size={16} className="text-red-400" />
+            </div>
+            <div className="flex-1 px-4 py-3 rounded-2xl rounded-bl-md bg-red-500/10 text-red-300 text-sm border border-red-500/30">
+              {error}
+            </div>
+          </div>
+        )}
+
         {messages.map((message) => (
           <ChatBubble key={message.id} message={message} />
         ))}
-        {/*isTyping && <TypingIndicator />*/}
+        {isLoading && <TypingIndicator />}
         <div ref={messagesEndRef} />
       </div>
 
@@ -130,8 +176,8 @@ export const ChatPanel: React.FC = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything..."
-
             rows={1}
+            disabled={isLoading}
             className={cn(
               'w-full px-4 py-3 pr-12 bg-muted rounded-xl resize-none text-sm',
               'placeholder:text-muted-foreground',
@@ -143,19 +189,25 @@ export const ChatPanel: React.FC = () => {
           />
           <button
             type="submit"
-
+            disabled={!input.trim() || isLoading}
             className={cn(
               'absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all',
-              input.trim()
+              input.trim() && !isLoading
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                 : 'bg-muted text-muted-foreground cursor-not-allowed',
             )}
           >
-            <Send size={18} />
+            {isLoading ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <Send size={18} />
+            )}
           </button>
         </form>
         <p className="text-xs text-muted-foreground mt-2 text-center">
-          AI responses are mocked for demo purposes
+          {isLoading
+            ? 'AI is thinking...'
+            : 'Press Enter to send, Shift+Enter for new line'}
         </p>
       </div>
     </div>
