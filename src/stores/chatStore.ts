@@ -63,7 +63,7 @@ const persistChatHistory = (messages: ChatMessage[]) => {
 }
 
 export const useChatStore = create<ChatState>((set) => {
-  const initialMessages = loadChatHistory()
+  const initialMessages: ChatMessage[] = []
 
   return {
     messages: initialMessages,
@@ -73,7 +73,7 @@ export const useChatStore = create<ChatState>((set) => {
         id: generateId(),
         role: 'user',
         content,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date(0).toISOString(),
       }
 
       set((state) => {
@@ -113,12 +113,12 @@ export const useChatStore = create<ChatState>((set) => {
 })
 
 export const useSendChatStore = create<SendChatStore>((set, get) => ({
-  issend: false,
+  issend: true,
   error: null,
 
   content: {
     id: generateId(),
-    timestamp: new Date(),
+    timestamp: new Date(0),
     text: '',
   },
 
@@ -129,7 +129,7 @@ export const useSendChatStore = create<SendChatStore>((set, get) => ({
       content: {
         ...get().content,
         text,
-        timestamp: new Date(),
+        timestamp: new Date(0),
       },
     }),
 

@@ -49,24 +49,14 @@ const ensurePath = (
 }
 
 // Storage key for persistence
-const STORAGE_KEY = 'meow_editor_state'
+
 
 // Load persisted state from localStorage
 const loadPersistedState = (): Partial<EditorState> | null => {
-  if (typeof window === 'undefined') return null
+
 
   try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      const parsed = JSON.parse(stored)
-      return {
-        fileTree: parsed.fileTree || [],
-        fileContents: parsed.fileContents || {},
-        activeFile: parsed.activeFile || null,
-        openTabs: parsed.openTabs || [],
-        expandedFolders: new Set<string>(parsed.expandedFolders || []),
-      }
-    }
+
   } catch (error) {
     console.error('Failed to load persisted editor state:', error)
   }
@@ -75,19 +65,10 @@ const loadPersistedState = (): Partial<EditorState> | null => {
 
 // Save state to localStorage
 const persistState = (state: EditorState) => {
-  if (typeof window === 'undefined') return
+
 
   try {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        fileTree: state.fileTree,
-        fileContents: state.fileContents,
-        activeFile: state.activeFile,
-        openTabs: state.openTabs,
-        expandedFolders: Array.from(state.expandedFolders),
-      }),
-    )
+    console.log('Persisting editor state...')
   } catch (error) {
     console.error('Failed to persist editor state:', error)
   }

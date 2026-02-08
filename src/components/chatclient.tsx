@@ -8,7 +8,7 @@ import { executeCommand, formatExecResult } from '@/lib/executecommand'
 
 export const ChatClient = () => {
   // TanStack AI's useChat hook - handles streaming automatically
-  const { messages, append, isLoading, error } = useChat({
+  const { messages, sendMessage, isLoading, error } = useChat({
     connection: fetchServerSentEvents('/api/agent'),
   })
 
@@ -27,11 +27,10 @@ export const ChatClient = () => {
     isLoading,
     'Messages:',
     messages.length,
+    issend
   )
 
-  // ========================================
-  // HANDLE API ERRORS
-  // ========================================
+
   useEffect(() => {
     if (error) {
       console.error('❌ Chat API error:', error)
@@ -40,34 +39,27 @@ export const ChatClient = () => {
           ? error.message
           : 'Failed to connect to AI service',
       )
-      setIsSend(true) // Stop loading state
+      setIsSend(true)
     }
   }, [error, setError, setIsSend])
 
-  // ========================================
-  // SEND USER MESSAGE
-  // ========================================
+
   useEffect(() => {
     if (!issend) {
-      const current = getCurrentMessage()
+
       console.log(
         '📤 Sending initial message to AI agent:',
-        current.slice(0, 50) + '...',
+        + '...',
       )
-      if (current.trim()) {
-        // TanStack AI's append sends message and starts streaming response
-        append({
-          role: 'user',
-          content: current,
-        })
-        setIsSend(true) // Mark as sent
+      if (getCurrentMessage().trim().length > 0) {
+
+        sendMessage(getCurrentMessage().trim())
+        setIsSend(true)
       }
     }
-  }, [issend, append, getCurrentMessage, setIsSend])
+  }, [issend, sendMessage, getCurrentMessage, setIsSend])
 
-  // ========================================
-  // PROCESS STREAMING RESPONSES
-  // ========================================
+
   useEffect(() => {
     if (messages.length === 0) return
 
@@ -92,7 +84,7 @@ export const ChatClient = () => {
     const fullText = lastPart.content || ''
     const messageId = lastAssistantMessage.id
 
-    // Skip if already fully processed
+
     if (lastProcessedIdRef.current === messageId && !isLoading) {
       return
     }
@@ -101,12 +93,9 @@ export const ChatClient = () => {
       `📨 [${isLoading ? 'STREAMING' : 'COMPLETE'}] Message length: ${fullText.length}`,
     )
 
-    // ========================================
-    // STREAMING PHASE: Parse commands as chunks arrive
-    // ========================================
+
     if (isLoading) {
-      // Parser's internal buffer handles streaming chunks
-      // Extracts complete commands as they finish arriving
+
       const commands = parserRef.current.parse(fullText)
 
       if (commands.length > 0) {
@@ -133,7 +122,7 @@ export const ChatClient = () => {
             `📊 Stats - makef: ${stats.makef}, writf: ${stats.writf}, exe: ${stats.exe}`,
           )
 
-          // Apply ALL commands to editor store
+
           useEditorStore.getState().applyAgentCommands(commands)
           processedCommandsRef.current.add(commandHash)
 
@@ -172,9 +161,7 @@ export const ChatClient = () => {
       }
     }
 
-    // ========================================
-    // FINALIZATION PHASE: Stream ended, display clean text
-    // ========================================
+
     else if (!isLoading && lastProcessedIdRef.current !== messageId) {
       console.log('📬 [STREAM COMPLETE] Finalizing response text...')
 

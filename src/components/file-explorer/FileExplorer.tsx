@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { useEditorStore, FileNode } from '@/stores/editorStore'
 import { cn } from '@/lib/utils'
+import { useMounted } from '@/lib/hooks/mounted'
 
 interface FileTreeItemProps {
   node: FileNode
@@ -106,7 +107,9 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ node, depth }) => {
 }
 
 export const FileExplorer: React.FC = () => {
+  const mounted = useMounted()
   const { fileTree } = useEditorStore()
+  if (!mounted) return null
 
   return (
     <div className="h-full bg-sidebar flex flex-col">

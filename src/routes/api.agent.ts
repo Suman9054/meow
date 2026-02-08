@@ -1,34 +1,31 @@
+
 import { createFileRoute } from '@tanstack/react-router'
 import { createOpenaiChat, type OpenAITextConfig } from '@tanstack/ai-openai'
+import { createOllamaChat } from '@tanstack/ai-ollama'
 import { chat, toServerSentEventsResponse } from '@tanstack/ai'
 import { z } from 'zod'
 
 import { systemprompt } from '@/lib/prompt'
+import { commandExecutorTool, makePathTool, writeFileTool } from '@/lib/tools/tools'
 
-// Validation schema for API request
-const AgentRequestSchema = z.object({
-  messages: z.array(
-    z.object({
-      role: z.enum(['user', 'assistant', 'system']),
-      content: z.string().max(10000),
-    }),
-  ),
-  conversationId: z.string().optional(),
-})
 
+
+
+
+// -----------------------------
+// Route
+// -----------------------------
 export const Route = createFileRoute('/api/agent')({
   server: {
     handlers: {
       POST: async ({ request }) => {
         try {
-          // Validate environment variables
+
           const apiKey = process.env.OPENAI_API_KEY
           if (!apiKey) {
             console.error('Missing OPENAI_API_KEY environment variable')
             return new Response(
-              JSON.stringify({
-                error: 'Server configuration error: missing API key',
-              }),
+              JSON.stringify({ error: 'some thing went wrong' }),
               {
                 status: 500,
                 headers: { 'Content-Type': 'application/json' },
@@ -36,75 +33,74 @@ export const Route = createFileRoute('/api/agent')({
             )
           }
 
-          // Parse and validate request body
+
           let body
           try {
             body = await request.json()
           } catch (parseError) {
             console.error('Failed to parse request body:', parseError)
             return new Response(
-              JSON.stringify({
-                error: 'Invalid request: malformed JSON',
-              }),
+              JSON.stringify({ error: 'some thing went wrong' }),
               {
-                status: 400,
+                status: 500,
                 headers: { 'Content-Type': 'application/json' },
               },
             )
           }
 
-          // Validate request schema
-          const validatedData = AgentRequestSchema.parse(body)
-          const { messages, conversationId } = validatedData
+
+
+          const { messages, conversationId } = body
 
           console.log('API Agent messages:', messages.length, 'messages')
 
           const config: Omit<OpenAITextConfig, 'apiKey'> = {
-            baseURL: 'https://openrouter.ai/api/v1',
+            baseURL: 'https://router.huggingface.co/v1',
           }
 
-          const messagesWithSystem = [
-            ...messages,
-            { role: 'system', content: systemprompt() },
-          ]
+
 
           const adapter = createOpenaiChat(
-            process.env.OPENAI_MODEL || 'tngtech/deepseek-r1t2-chimera:free',
+            process.env.OPENAI_MODEL || 'Qwen/Qwen3-Coder-Next:novita',
             apiKey,
             config,
           )
 
+          const ollamad = createOllamaChat('qwen3-vl')
+
           const stream = chat({
-            adapter: adapter,
-            messages: messagesWithSystem as any,
-            conversationId: conversationId,
+            adapter: ollamad,
+            messages: messages,
+            systemPrompts: [systemprompt()],
+            conversationId,
             temperature: 0.2,
+            tools: [commandExecutorTool, writeFileTool, makePathTool],
           })
+
 
           return toServerSentEventsResponse(stream)
         } catch (error) {
+
           if (error instanceof z.ZodError) {
-            const firstError = error.issues[0]
+
             console.error('Validation error:', error.issues)
+
             return new Response(
-              JSON.stringify({
-                error: `Invalid request: ${firstError.path.join('.')} - ${firstError.message}`,
-              }),
+              JSON.stringify({ error: 'some thing went wrong' }),
               {
-                status: 400,
+                status: 500,
                 headers: { 'Content-Type': 'application/json' },
               },
             )
+
           }
 
+          // ❗ Unexpected runtime errors
           console.error('Unexpected error in agent endpoint:', error)
+
+
           return new Response(
-            JSON.stringify({
-              error:
-                error instanceof Error
-                  ? error.message
-                  : 'An unexpected error occurred',
-            }),
+            JSON.stringify({ error: error }),
             {
               status: 500,
               headers: { 'Content-Type': 'application/json' },
@@ -115,3 +111,4 @@ export const Route = createFileRoute('/api/agent')({
     },
   },
 })
+
