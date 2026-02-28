@@ -50,13 +50,9 @@ const ensurePath = (
 
 // Storage key for persistence
 
-
 // Load persisted state from localStorage
 const loadPersistedState = (): Partial<EditorState> | null => {
-
-
   try {
-
   } catch (error) {
     console.error('Failed to load persisted editor state:', error)
   }
@@ -64,9 +60,7 @@ const loadPersistedState = (): Partial<EditorState> | null => {
 }
 
 // Save state to localStorage
-const persistState = (state: EditorState) => {
-
-
+const persistState = (_state: EditorState) => {
   try {
     console.log('Persisting editor state...')
   } catch (error) {
@@ -122,35 +116,13 @@ export const useEditorStore = create<EditorState>((set, get) => {
 
     getFileContent: (fileId) => get().fileContents[fileId] ?? '',
 
-    applyAgentCommands: (commands) =>
-      set((state) => {
-        const nextTree = structuredClone(state.fileTree)
-        const nextContents = { ...state.fileContents }
-        const nextTabs = [...state.openTabs]
-        const nextExpanded = new Set(state.expandedFolders)
-        let nextActive = state.activeFile
-
-        for (const cmd of commands) {
-          if (cmd.type === 'makef') {
-            const parts = cmd.path.split('/')
-            ensurePath(nextTree, parts)
-
-            for (let i = 1; i < parts.length; i++) {
-              nextExpanded.add(parts.slice(0, i).join('/'))
-            }
-          }
-
-          if (cmd.type === 'writf') {
-            nextContents[cmd.path] = cmd.content
-            nextActive = cmd.path
-            if (!nextTabs.includes(cmd.path)) nextTabs.push(cmd.path)
-          }
-
-          if (cmd.type === 'exe') {
-            console.log('[AGENT EXEC]', cmd.command)
-          }
-        }
-
+    applyAgentCommands: (_commands) =>
+      set((_state) => {
+        const nextTree = structuredClone(_state.fileTree)
+        const nextContents = { ..._state.fileContents }
+        const nextTabs = [..._state.openTabs]
+        const nextExpanded = new Set(_state.expandedFolders)
+        let nextActive = _state.activeFile
         const newState = {
           fileTree: nextTree,
           fileContents: nextContents,
@@ -160,7 +132,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
         }
 
         // Persist the new state
-        persistState({ ...state, ...newState })
+        persistState({ ..._state, ...newState })
         return newState
       }),
   }

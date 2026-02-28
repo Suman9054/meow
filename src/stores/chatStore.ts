@@ -37,6 +37,7 @@ const generateId = () => crypto.randomUUID().toString().substring(2, 11)
 const CHAT_STORAGE_KEY = 'meow_chat_history'
 
 // Load chat history from localStorage
+// @ts-ignore - Function is kept for future use
 const loadChatHistory = (): ChatMessage[] => {
   if (typeof window === 'undefined') return []
 

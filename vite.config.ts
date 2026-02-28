@@ -4,8 +4,6 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
-import { nitro } from 'nitro/vite'
-import { cloudflare } from '@cloudflare/vite-plugin'
 
 const config = defineConfig({
   plugins: [
@@ -20,6 +18,11 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  build: {
+    rollupOptions: {
+      external: ['@tanstack/start/server'],
+    },
+  },
 })
 
 export default config

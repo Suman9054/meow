@@ -1,16 +1,8 @@
-
 import { createFileRoute } from '@tanstack/react-router'
 import { createOpenaiChat, type OpenAITextConfig } from '@tanstack/ai-openai'
-import { createOllamaChat } from '@tanstack/ai-ollama'
 import { chat, toServerSentEventsResponse } from '@tanstack/ai'
 import { z } from 'zod'
-
 import { systemprompt } from '@/lib/prompt'
-import { commandExecutorTool, makePathTool, writeFileTool } from '@/lib/tools/tools'
-
-
-
-
 
 // -----------------------------
 // Route
@@ -20,7 +12,6 @@ export const Route = createFileRoute('/api/agent')({
     handlers: {
       POST: async ({ request }) => {
         try {
-
           const apiKey = process.env.OPENAI_API_KEY
           if (!apiKey) {
             console.error('Missing OPENAI_API_KEY environment variable')
@@ -32,7 +23,6 @@ export const Route = createFileRoute('/api/agent')({
               },
             )
           }
-
 
           let body
           try {
@@ -48,9 +38,10 @@ export const Route = createFileRoute('/api/agent')({
             )
           }
 
-
-
-          const { messages, conversationId } = body
+          const { messages, conversationId } = body as {
+            messages: Array<any>
+            conversationId: string
+          }
 
           console.log('API Agent messages:', messages.length, 'messages')
 
@@ -58,31 +49,22 @@ export const Route = createFileRoute('/api/agent')({
             baseURL: 'https://router.huggingface.co/v1',
           }
 
+          const modelName =
+            process.env.OPENAI_MODEL || 'Qwen/Qwen3-Coder-Next:novita'
 
-
-          const adapter = createOpenaiChat(
-            process.env.OPENAI_MODEL || 'Qwen/Qwen3-Coder-Next:novita',
-            apiKey,
-            config,
-          )
-
-          const ollamad = createOllamaChat('qwen3-vl')
+          const adapter = createOpenaiChat(modelName as any, apiKey, config)
 
           const stream = chat({
-            adapter: ollamad,
+            adapter: adapter,
             messages: messages,
-            systemPrompts: [systemprompt()],
+            systemPrompts: [systemprompt().trim()],
             conversationId,
             temperature: 0.2,
-            tools: [commandExecutorTool, writeFileTool, makePathTool],
           })
-
 
           return toServerSentEventsResponse(stream)
         } catch (error) {
-
           if (error instanceof z.ZodError) {
-
             console.error('Validation error:', error.issues)
 
             return new Response(
@@ -92,23 +74,17 @@ export const Route = createFileRoute('/api/agent')({
                 headers: { 'Content-Type': 'application/json' },
               },
             )
-
           }
 
           // ❗ Unexpected runtime errors
           console.error('Unexpected error in agent endpoint:', error)
 
-
-          return new Response(
-            JSON.stringify({ error: error }),
-            {
-              status: 500,
-              headers: { 'Content-Type': 'application/json' },
-            },
-          )
+          return new Response(JSON.stringify({ error: error }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          })
         }
       },
     },
   },
 })
-

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { useChatStore, ChatMessage, useSendChatStore } from '@/stores/chatStore'
 import { cn } from '@/lib/utils'
+import { ai } from '@/lib/ai/Chatclient'
 
 const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
   const isUser = message.role === 'user'
@@ -96,11 +97,9 @@ export const ChatPanel: React.FC = () => {
     e.preventDefault()
     if (input.trim() && !isLoading) {
       setIsLoading(true)
-      sendMessage(input.trim())
-      setContent(input.trim())
       setIsSend(false)
       setInput('')
-
+      ai.sendMessage(input.trim())
       // Reset loading state after response completes
       const timer = setTimeout(() => setIsLoading(false), 30000) // 30 second timeout
       return () => clearTimeout(timer)
@@ -160,10 +159,11 @@ export const ChatPanel: React.FC = () => {
           </div>
         )}
 
-        {messages.map((message) => (
-          <ChatBubble key={message.id} message={message} />
-        ))}
-        {isLoading && <TypingIndicator />}
+        {ai.messages.map((message) =>
+          <div key={message.id}>
+
+          </div>)}
+        {ai.isLoading && <TypingIndicator />}
         <div ref={messagesEndRef} />
       </div>
 

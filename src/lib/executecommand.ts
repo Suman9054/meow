@@ -36,7 +36,7 @@ export async function executeCommand(req: ExecRequest): Promise<ExecResponse> {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
 
-    const data = await response.json()
+    const data = (await response.json()) as ExecResponse
     return data
   } catch (error) {
     console.error('[EXEC] Request failed:', error)

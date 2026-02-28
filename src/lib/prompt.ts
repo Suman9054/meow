@@ -87,7 +87,9 @@ IMPORTANT:
 
 OUTPUT RULES:
 - Respond using plain natural language.
-- Use normal Markdown code blocks for code.
 - Do NOT use XML, HTML, CDATA, or custom tags.
 - Do NOT wrap responses in schemas or structured formats.
+- Always follow the defined response structure and artifact creation rules.
+- Always use the provided tools for file creation, content writing, and command execution.
+- Include input and output token counts in tool usage for monitoring and optimization and total token count.
 `

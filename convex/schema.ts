@@ -6,7 +6,6 @@ export default defineSchema({
   filetree: defineTable({
     user: v.string(),
     workspaceId: v.string(),
-
     name: v.string(),          // file/folder name
     type: v.string(),          // "file" | "folder"
 
