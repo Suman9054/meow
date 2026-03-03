@@ -7,75 +7,35 @@ import {
   Loader2,
   AlertCircle,
 } from 'lucide-react'
-import { useChatStore, ChatMessage, useSendChatStore } from '@/stores/chatStore'
+import { useChatStore, useSendChatStore } from '@/stores/chatStore'
 import { cn } from '@/lib/utils'
-import { ai } from '@/lib/ai/Chatclient'
+import { fetchServerSentEvents, useChat } from '@tanstack/ai-react'
+import { clientTools } from '@tanstack/ai-client'
+import {
+  commandExecutorTool,
+  makePathTool,
+  writeFileTool,
+} from '@/lib/tools/tools'
 
-const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
-  const isUser = message.role === 'user'
 
-  return (
-    <div
-      className={cn(
-        'flex gap-3 animate-slide-in-up',
-        isUser ? 'flex-row-reverse' : 'flex-row',
-      )}
-    >
-      <div
-        className={cn(
-          'w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-sm font-medium',
-          isUser
-            ? 'bg-chat-user text-primary-foreground'
-            : 'bg-gradient-to-br from-primary to-accent text-primary-foreground',
-        )}
-      >
-        {isUser ? 'U' : <Sparkles size={16} />}
-      </div>
-      <div
-        className={cn(
-          'max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed',
-          isUser
-            ? 'bg-chat-user text-primary-foreground rounded-br-md'
-            : 'bg-chat-assistant text-foreground rounded-bl-md',
-        )}
-      >
-        {message.content}
-      </div>
-    </div>
-  )
-}
 
-const TypingIndicator: React.FC = () => (
-  <div className="flex gap-3">
-    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0">
-      <Sparkles size={16} className="text-primary-foreground" />
-    </div>
-    <div className="bg-chat-assistant px-4 py-3 rounded-2xl rounded-bl-md">
-      <div className="flex gap-1">
-        <span
-          className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse"
-          style={{ animationDelay: '0ms' }}
-        />
-        <span
-          className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse"
-          style={{ animationDelay: '150ms' }}
-        />
-        <span
-          className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse"
-          style={{ animationDelay: '300ms' }}
-        />
-      </div>
-    </div>
-  </div>
-)
 
 export const ChatPanel: React.FC = () => {
-  const { messages, sendMessage, clearMessages } = useChatStore()
+  const { messages, clearMessages } = useChatStore()
   const [input, setInput] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const { setContent, setIsSend, error, setError } = useSendChatStore()
-  const [isLoading, setIsLoading] = useState(false)
+  const { setIsSend, error, setError } = useSendChatStore()
+  const clienttools = clientTools(
+    commandExecutorTool,
+    makePathTool,
+    writeFileTool,
+  )
+  const aiclient = useChat({
+    connection: fetchServerSentEvents('/api/agent'),
+    tools: clienttools,
+
+  })
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -92,24 +52,24 @@ export const ChatPanel: React.FC = () => {
       return () => clearTimeout(timer)
     }
   }, [error, setError])
+  const submite = () => {
+    if (input.trim() && !aiclient.isLoading) {
 
+      setIsSend(false)
+      aiclient.sendMessage(input.trim())
+      setInput('')
+    }
+  }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (input.trim() && !isLoading) {
-      setIsLoading(true)
-      setIsSend(false)
-      setInput('')
-      ai.sendMessage(input.trim())
-      // Reset loading state after response completes
-      const timer = setTimeout(() => setIsLoading(false), 30000) // 30 second timeout
-      return () => clearTimeout(timer)
-    }
+    submite()
+    // 30 second timeou
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
+    if (e.key === 'Enter' && !e.shiftKey && !aiclient.isLoading) {
       e.preventDefault()
-      handleSubmit(e)
+      submite()
     }
   }
 
@@ -120,7 +80,7 @@ export const ChatPanel: React.FC = () => {
         <div className="flex items-center gap-2">
           <Sparkles size={18} className="text-primary" />
           <span className="font-medium text-sm">AI Assistant</span>
-          {isLoading && (
+          {aiclient.isLoading && (
             <Loader2 size={16} className="animate-spin text-primary ml-1" />
           )}
         </div>
@@ -132,13 +92,13 @@ export const ChatPanel: React.FC = () => {
             }}
             className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             title="Clear chat"
-            disabled={isLoading}
+            disabled={aiclient.isLoading}
           >
             <Trash2 size={16} />
           </button>
           <button
             className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            disabled={isLoading}
+            disabled={aiclient.isLoading}
           >
             <MoreVertical size={16} />
           </button>
@@ -159,11 +119,39 @@ export const ChatPanel: React.FC = () => {
           </div>
         )}
 
-        {ai.messages.map((message) =>
-          <div key={message.id}>
-
-          </div>)}
-        {ai.isLoading && <TypingIndicator />}
+        {aiclient.messages.map((message) => (
+          <div
+            key={message.id}
+            className={`mb-4 ${message.role === "assistant" ? "text-blue-600" : "text-gray-800"
+              }`}
+          >
+            <div className="font-semibold mb-1">
+              {message.role === "assistant" ? "Assistant" : "You"}
+            </div>
+            <div>
+              {message.parts.map((part, idx) => {
+                if (part.type === "thinking") {
+                  return (
+                    <div
+                      key={idx}
+                      className="text-sm text-gray-500 italic mb-2"
+                    >
+                      💭 Thinking: {part.content}
+                    </div>
+                  );
+                }
+                if (part.type === "text") {
+                  return <div key={idx}>{part.content}</div>;
+                }
+                return null;
+              })}
+            </div>
+          </div>
+        ))}
+        {aiclient.isLoading && <div className="text-sm text-gray-500 italic mb-2">
+          💭 AI is thinking...
+        </div>
+        }
         <div ref={messagesEndRef} />
       </div>
 
@@ -177,7 +165,7 @@ export const ChatPanel: React.FC = () => {
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything..."
             rows={1}
-            disabled={isLoading}
+            disabled={aiclient.isLoading}
             className={cn(
               'w-full px-4 py-3 pr-12 bg-muted rounded-xl resize-none text-sm',
               'placeholder:text-muted-foreground',
@@ -189,15 +177,15 @@ export const ChatPanel: React.FC = () => {
           />
           <button
             type="submit"
-            disabled={!input.trim() || isLoading}
+            disabled={!input.trim() || aiclient.isLoading}
             className={cn(
               'absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all',
-              input.trim() && !isLoading
+              input.trim() && !aiclient.isLoading
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                 : 'bg-muted text-muted-foreground cursor-not-allowed',
             )}
           >
-            {isLoading ? (
+            {aiclient.isLoading ? (
               <Loader2 size={18} className="animate-spin" />
             ) : (
               <Send size={18} />
@@ -205,7 +193,7 @@ export const ChatPanel: React.FC = () => {
           </button>
         </form>
         <p className="text-xs text-muted-foreground mt-2 text-center">
-          {isLoading
+          {aiclient.isLoading
             ? 'AI is thinking...'
             : 'Press Enter to send, Shift+Enter for new line'}
         </p>
@@ -213,3 +201,5 @@ export const ChatPanel: React.FC = () => {
     </div>
   )
 }
+
+

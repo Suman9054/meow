@@ -3,6 +3,7 @@ import { createOpenaiChat, type OpenAITextConfig } from '@tanstack/ai-openai'
 import { chat, toServerSentEventsResponse } from '@tanstack/ai'
 import { z } from 'zod'
 import { systemprompt } from '@/lib/prompt'
+import { commandExecutorTool, makePathTool, writeFileTool } from '@/lib/tools/tools'
 
 // -----------------------------
 // Route
@@ -58,6 +59,7 @@ export const Route = createFileRoute('/api/agent')({
             adapter: adapter,
             messages: messages,
             systemPrompts: [systemprompt().trim()],
+            tools: [commandExecutorTool, writeFileTool, makePathTool],
             conversationId,
             temperature: 0.2,
           })

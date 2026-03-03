@@ -7,7 +7,7 @@ import { AppPreview } from '@/components/preview/AppPreview'
 import { ChatPanel } from '@/components/ChatPanel'
 import { TopBar } from './TopBar'
 import { useUIStore } from '@/stores/uiStore'
-import { ChatClient } from '../chatclient'
+
 
 export const MainLayout: React.FC = () => {
   const { activePanel, isChatOpen, isSidebarOpen } = useUIStore()
@@ -69,7 +69,7 @@ export const MainLayout: React.FC = () => {
           )}
         </PanelGroup>
       </div>
-      <ChatClient />
+
     </div>
   )
 }

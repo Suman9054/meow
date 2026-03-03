@@ -1,154 +1,137 @@
-import { useRef, useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
-import { ArrowRight, Code2, LayoutPanelLeft, Sparkles } from 'lucide-react'
+import { useState } from 'react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { ArrowRight, Loader } from 'lucide-react'
 import Header from '@/components/Header'
+import FaultyTerminal from '@/components/faltyterminal'
 
 export const Route = createFileRoute('/')({ component: Home })
 
 function Home() {
   const [prompt, setPrompt] = useState('')
-  const chatSectionRef = useRef<HTMLDivElement | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const navigate = useNavigate()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!prompt.trim()) return
-    // In a real app this would send the prompt to your AI backend
-    setPrompt('')
-  }
 
-  const features = [
-    {
-      icon: <Code2 className="w-5 h-5 text-cyan-400" />,
-      title: 'AI-powered code workspace',
-      description:
-        'Chat with an AI that understands your project structure, files, and tech stack.',
-    },
-    {
-      icon: <LayoutPanelLeft className="w-5 h-5 text-cyan-400" />,
-      title: 'In-browser IDE surface',
-      description:
-        'Inspect files, preview UI, and iterate quickly without leaving the browser.',
-    },
-    {
-      icon: <Sparkles className="w-5 h-5 text-cyan-400" />,
-      title: 'Project-based workflows',
-      description:
-        'Organize work into projects with saved prompts and generated changes.',
-    },
-  ]
+    setIsLoading(true)
+    setError('')
+
+    try {
+      // Navigate to workspace with the prompt as initial state
+      await navigate({
+        to: '/workspace/$id',
+        params: { id: 'new-project' },
+        search: { initialPrompt: prompt },
+      })
+      setPrompt('')
+    } catch (err) {
+      setError('Failed to create workspace. Please try again.')
+      setIsLoading(false)
+    }
+  }
 
   return (
     <>
       <Header />
-      <div className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-foreground overflow-hidden">
-        {/* Hero + AI prompt */}
-        <section className="min-h-screen relative px-6 py-16 md:py-24 flex items-center justify-center">
-          <div className="pointer-events-none absolute inset-0 opacity-40">
-            <div className="absolute -top-40 -left-40 h-80 w-80 rounded-full bg-cyan-500/20 blur-3xl" />
-            <div className="absolute -bottom-40 -right-40 h-80 w-80 rounded-full bg-purple-500/20 blur-3xl" />
+      <div className="h-screen flex flex-col bg-slate-950">
+        {/* Fixed Terminal Background */}
+        <div className="fixed inset-0 w-full h-full z-0">
+          <FaultyTerminal
+            scale={1.5}
+            gridMul={[2, 1]}
+            digitSize={1.2}
+            timeScale={0.5}
+            pause={false}
+            scanlineIntensity={0.5}
+            glitchAmount={1}
+            flickerAmount={1}
+            noiseAmp={1}
+            chromaticAberration={0}
+            dither={0}
+            curvature={0.1}
+            tint="#00ffff"
+
+            mouseStrength={0.5}
+            brightness={0.6}
+          />
+        </div>
+
+        {/* Dark overlay for content readability */}
+        <div className="fixed inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/60 to-slate-950/80 z-10" />
+
+        {/* Main scrollable content */}
+        <div className="relative z-20 flex-grow overflow-y-auto flex flex-col ">
+          {/* Expandable space */}
+          <div className="flex-grow flex flex-col items-center justify-center px-6">
+            <p className="text-center text-sm text-slate-200 mt-6">
+              Welcome to AI Code Studio! Start by describing your project idea below.
+            </p>
           </div>
 
-          <div className="relative max-w-3xl mx-auto text-center flex flex-col items-center gap-10 w-full">
-            {/* Hero copy */}
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-slate-900/60 px-3 py-1 text-xs font-medium text-cyan-200 mb-4">
-                <Sparkles className="w-3 h-3" />
-                <span>AI-native coding workspace</span>
-              </div>
+          {/* Chat Section */}
+          <div className="px-6 py-6">
+            <div className="max-w-3xl mx-auto w-full flex flex-col gap-4">
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-white mb-4">
-                Ship faster with
-                <span className="block bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-400 bg-clip-text text-transparent">
-                  an AI code studio
-                </span>
-              </h1>
-
-              <p className="text-base md:text-lg text-slate-400 max-w-xl mx-auto mb-8">
-                Ask in natural language. Watch your project-aware AI assistant
-                explore files, update code, and keep everything in sync—directly
-                inside your browser.
-              </p>
-
-              <div className="grid gap-4 sm:grid-cols-3 text-sm">
-                {features.map((feature) => (
-                  <div
-                    key={feature.title}
-                    className="flex items-start gap-3 rounded-xl border border-slate-800 bg-slate-900/60 p-3"
-                  >
-                    <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-slate-800">
-                      {feature.icon}
+              <form
+                onSubmit={handleSubmit}
+                className="rounded-2xl border border-cyan-500/40 bg-slate-900/60 backdrop-blur-sm p-4 md:p-5 shadow-2xl shadow-cyan-500/20 hover:border-cyan-400/60 hover:bg-slate-900/80 transition-all"
+              >
+                <div className="flex flex-col gap-3">
+                  <textarea
+                    rows={4}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    disabled={isLoading}
+                    placeholder="e.g. Generate a project dashboard layout with filters and a summary card at the top."
+                    className="w-full resize-none bg-slate-950/80 px-4 py-3 text-sm md:text-base text-slate-100 placeholder:text-slate-500 rounded-xl border border-cyan-500/20 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  />
+                  {error && (
+                    <div className="rounded-lg bg-red-500/15 border border-red-500/40 p-3 text-xs md:text-sm text-red-300">
+                      {error}
                     </div>
-                    <div className="text-left">
-                      <h3 className="text-xs font-semibold text-slate-100 mb-1">
-                        {feature.title}
-                      </h3>
-                      <p className="text-[11px] text-slate-400 leading-snug">
-                        {feature.description}
-                      </p>
-                    </div>
+                  )}
+                  <div className="flex items-center justify-between gap-3 text-[11px] text-slate-400">
+                    <span>
+                      Tip: be specific about components, data, and tech stack.
+                    </span>
+                    <button
+                      type="submit"
+                      disabled={!prompt.trim() || isLoading}
+                      className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-500 px-4 py-2 text-xs font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-cyan-600 active:bg-cyan-700 transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader className="w-3.5 h-3.5 animate-spin" />
+                          <span>Processing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ArrowRight className="w-4 h-4" />
+                          <span>Send</span>
+                        </>
+                      )}
+                    </button>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Simple chat section for getting started */}
-        <section
-          id="start"
-          ref={chatSectionRef}
-          className="min-h-screen px-6 py-16 flex items-center justify-center"
-        >
-          <div className="max-w-3xl mx-auto w-full flex flex-col gap-4">
-            <div className="mb-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                Start with a prompt
-              </p>
-              <p className="text-sm text-slate-300">
-                Describe what you want to build and we'll guide you into the
-                full workspace.
-              </p>
-            </div>
-
-            <form
-              onSubmit={handleSubmit}
-              className="rounded-3xl border border-slate-800 bg-slate-900/90 p-5 md:p-7 shadow-2xl shadow-cyan-500/10"
-            >
-              <div className="flex flex-col gap-4">
-                <textarea
-                  rows={5}
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="e.g. Generate a project dashboard layout with filters and a summary card at the top."
-                  className="min-h-[120px] w-full resize-none bg-slate-950/60 px-4 py-3 text-base md:text-lg text-slate-100 placeholder:text-slate-500 rounded-2xl border border-slate-800 focus:outline-none focus:ring-1 focus:ring-cyan-500/80"
-                />
-                <div className="flex items-center justify-between gap-3 text-[11px] text-slate-500">
-                  <span>
-                    Tip: be specific about components, data, and tech stack.
-                  </span>
-                  <button
-                    type="submit"
-                    disabled={!prompt.trim()}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-cyan-500 px-4 py-1.5 text-xs font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-cyan-600 transition-colors"
-                  >
-                    <ArrowRight className="w-3.5 h-3.5" />
-                    <span>Send</span>
-                  </button>
                 </div>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
-        </section>
+        </div>
 
-        <footer className="border-t border-slate-800/80 bg-slate-950/90 py-4">
-          <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500">
-            <span>
-              © {new Date().getFullYear()} AI Code Studio. All rights reserved.
-            </span>
-            <span>Workspace powered by TanStack Start.</span>
-          </div>
-        </footer>
+        {/* Fixed Footer */}
       </div>
+      <footer className="relative z-20 border-t border-cyan-500/20 bg-slate-950/95 backdrop-blur-sm py-3 flex-shrink-0">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-slate-500">
+          <span>
+            © {new Date().getFullYear()} AI Code Studio. All rights reserved.
+          </span>
+          <span>Workspace powered by TanStack Start.</span>
+        </div>
+      </footer>
+
     </>
   )
 }

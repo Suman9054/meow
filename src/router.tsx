@@ -6,7 +6,7 @@ import { ConvexProvider } from "convex/react";
 import { routeTree } from "./routeTree.gen";
 
 export function getRouter() {
-  const CONVEX_URL = process.env.convexurl!;
+  const CONVEX_URL = import.meta.env.VITE_CONVEX_URL!;
   if (!CONVEX_URL) {
     console.error("missing envar VITE_CONVEX_URL");
   }

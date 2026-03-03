@@ -217,6 +217,16 @@ pre,
   background: hsl(var(--muted-foreground));
 }
 
+/* Hide scrollbars */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Panel resize handles for react-resizable-panels */
 [data-panel-group-direction='horizontal'] > [data-resize-handle] {
   width: 4px;
