@@ -9,6 +9,8 @@
  */
 
 import type * as convextools from "../convextools.js";
+import type * as querys from "../querys.js";
+import type * as workspace from "../workspace.js";
 
 import type {
   ApiFromModules,
@@ -18,6 +20,8 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   convextools: typeof convextools;
+  querys: typeof querys;
+  workspace: typeof workspace;
 }>;
 
 /**

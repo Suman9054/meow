@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ArrowRight, Loader } from 'lucide-react'
 import Header from '@/components/Header'
-import FaultyTerminal from '@/components/faltyterminal'
+const FaultyTerminal = lazy(() => import('@/components/faltyterminal'))
+import { api } from 'convex/_generated/api'
+import { useAction } from 'convex/react'
 
 export const Route = createFileRoute('/')({ component: Home })
 
@@ -11,7 +13,7 @@ function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
-
+  const workspacecreate = useAction(api.convextools.creatworkspaceaction)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!prompt.trim()) return
@@ -20,9 +22,13 @@ function Home() {
     setError('')
 
     try {
+      // Create a new workspace in the database
+      const workspaceid = await workspacecreate({ user: '123456789' })
+      console.log("created workspace with id", workspaceid)
       // Navigate to workspace with the prompt as initial state
+
       await navigate({
-        to: '/workspace/$id',
+        to: `/workspace/${workspaceid}`,
         params: { id: 'new-project' },
         search: { initialPrompt: prompt },
       })
@@ -39,24 +45,26 @@ function Home() {
       <div className="h-screen flex flex-col bg-slate-950">
         {/* Fixed Terminal Background */}
         <div className="fixed inset-0 w-full h-full z-0">
-          <FaultyTerminal
-            scale={1.5}
-            gridMul={[2, 1]}
-            digitSize={1.2}
-            timeScale={0.5}
-            pause={false}
-            scanlineIntensity={0.5}
-            glitchAmount={1}
-            flickerAmount={1}
-            noiseAmp={1}
-            chromaticAberration={0}
-            dither={0}
-            curvature={0.1}
-            tint="#00ffff"
-
-            mouseStrength={0.5}
-            brightness={0.6}
-          />
+          <Suspense fallback={<div className="w-full h-full bg-slate-950" />}>
+            <FaultyTerminal
+              scale={1.2}
+              gridMul={[2, 1]}
+              digitSize={1.2}
+              timeScale={0.5}
+              pause={false}
+              scanlineIntensity={0.5}
+              glitchAmount={1}
+              flickerAmount={1}
+              noiseAmp={1}
+              chromaticAberration={0}
+              dither={0}
+              curvature={0.1}
+              tint="#00ffff"
+              mouseStrength={0.5}
+              brightness={0.6}
+              dpr={1}
+            />
+          </Suspense>
         </div>
 
         {/* Dark overlay for content readability */}
