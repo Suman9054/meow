@@ -1,128 +1,53 @@
 'use client'
 import React from 'react'
-import {
-  ChevronRight,
-  ChevronDown,
-  File,
-  Folder,
-  FolderOpen,
-} from 'lucide-react'
-import { useEditorStore, FileNode } from '@/stores/editorStore'
-import { cn } from '@/lib/utils'
+import { FileNode } from '@/stores/editorStore'
 import { useMounted } from '@/lib/hooks/mounted'
+import { useQuery } from '@tanstack/react-query'
+import { convexQuery } from '@convex-dev/react-query'
+import { api } from 'convex/_generated/api'
+import { Id } from 'convex/_generated/dataModel'
+import { Tree, Folder, File } from '../ui/file-tree'
 
-interface FileTreeItemProps {
-  node: FileNode
-  depth: number
-}
 
-const FileTreeItem: React.FC<FileTreeItemProps> = ({ node, depth }) => {
-  const { activeFile, expandedFolders, setActiveFile, toggleFolder } =
-    useEditorStore()
-
-  const isExpanded = expandedFolders.has(node.id)
-  const isActive = activeFile === node.id
-
-  const handleClick = () => {
-    if (node.type === 'folder') {
-      toggleFolder(node.id)
-    } else {
-      setActiveFile(node.id)
-    }
+const reandernode = (node: FileNode) => {
+  if (node.type === 'folder') {
+    return (
+      <Folder element={node.name} value={node._id} key={node._id}>
+        {node.childrean && node.childrean.map((child) => reandernode(child))}
+      </Folder>
+    )
   }
-
-  const getFileIcon = (fileName: string) => {
-    if (fileName.endsWith('.tsx') || fileName.endsWith('.ts')) {
-      return <span className="text-syntax-type text-xs font-bold">TS</span>
-    }
-    if (fileName.endsWith('.css')) {
-      return <span className="text-syntax-keyword text-xs font-bold">#</span>
-    }
-    if (fileName.endsWith('.json')) {
-      return (
-        <span className="text-syntax-number text-xs font-bold">{'{}'}</span>
-      )
-    }
-    if (fileName.endsWith('.html')) {
-      return (
-        <span className="text-syntax-string text-xs font-bold">&lt;&gt;</span>
-      )
-    }
-    return <File size={14} className="text-muted-foreground" />
-  }
-
   return (
-    <div>
-      <button
-        onClick={handleClick}
-        className={cn(
-          'w-full flex items-center gap-1.5 px-2 py-1 text-sm text-left rounded-sm transition-colors',
-          'hover:bg-sidebar-hover',
-          isActive && 'bg-sidebar-hover text-sidebar-active',
-        )}
-        style={{ paddingLeft: `${depth * 12 + 8}px` }}
-      >
-        {node.type === 'folder' ? (
-          <>
-            {isExpanded ? (
-              <ChevronDown size={14} className="text-muted-foreground" />
-            ) : (
-              <ChevronRight size={14} className="text-muted-foreground" />
-            )}
-            {isExpanded ? (
-              <FolderOpen size={14} className="text-syntax-function" />
-            ) : (
-              <Folder size={14} className="text-syntax-function" />
-            )}
-          </>
-        ) : (
-          <>
-            <span className="w-3.5" />
-            <span className="w-3.5 flex items-center justify-center">
-              {getFileIcon(node.name)}
-            </span>
-          </>
-        )}
-        <span
-          className={cn(
-            'truncate',
-            node.type === 'folder'
-              ? 'text-sidebar-foreground'
-              : 'text-foreground/80',
-          )}
-        >
-          {node.name}
-        </span>
-      </button>
-
-      {node.type === 'folder' && isExpanded && node.children && (
-        <div>
-          {node.children.map((child) => (
-            <FileTreeItem key={child.id} node={child} depth={depth + 1} />
-          ))}
-        </div>
-      )}
-    </div>
+    <File value={node._id} key={node._id}>
+      <span>{node.name}</span>
+    </File>
   )
 }
 
 export const FileExplorer: React.FC = () => {
   const mounted = useMounted()
-  const { fileTree } = useEditorStore()
+  const fileTree = useQuery(convexQuery(api.querys.getallfiletree, {
+    workspaceID: 'jd760ygcxnzs2h2vapetkhp0fx828xvd' as Id<"workspaces">
+  }))
+
   if (!mounted) return null
 
   return (
-    <div className="h-full bg-sidebar flex flex-col">
-      <div className="px-4 py-3 border-b border-panel-border">
-        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+    <div className="h-full flex flex-col bg-[#1e1e2e] text-[#cdd6f4]">
+
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-[#313244] bg-[#181825]">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[#a6adc8]">
           Explorer
         </h2>
       </div>
-      <div className="flex-1 overflow-auto py-2">
-        {fileTree.map((node) => (
-          <FileTreeItem key={node.id} node={node} depth={0} />
-        ))}
+
+      {/* File Tree */}
+      <div className="flex-1 overflow-y-auto px-2 py-2">
+        <Tree className="rounded-md bg-[#1e1e2e] p-2 text-sm">
+          {fileTree.data?.map((node) => reandernode(node))}
+        </Tree>
       </div>
-    </div>
-  )
+
+    </div>)
 }

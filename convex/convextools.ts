@@ -1,3 +1,4 @@
+
 import { internal } from "./_generated/api";
 import { action } from "./_generated/server";
 import { v } from "convex/values";
@@ -17,7 +18,7 @@ export const creatworkspaceaction = action({
   args: { user: v.string() },
   handler: async (ctx, args): Promise<string> => {
     try {
-      const workspaceid: string = await ctx.runMutation(internal.workspace.createWorkspace, {
+      const workspaceid: string = await ctx.runMutation(internal.workspace.creatworkspace, {
         user: args.user
       })
       console.log("Created workspace with ID:", workspaceid);

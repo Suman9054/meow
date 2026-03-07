@@ -18,3 +18,23 @@ export const createworkspace = mutation({
 
   }
 })
+
+export const savemessages = mutation({
+  args: {
+    workspaceid: v.id("workspaces"),
+    messages: v.any()
+  },
+  handler: async (ctx, args) => {
+    try {
+      await ctx.db.insert('messagesschema', {
+        workspaceId: args.workspaceid,
+        messages: args.messages
+      })
+      console.log("Saved messages for workspace", args.workspaceid);
+    } catch (error) {
+      console.error("Error saving messages:", error);
+      throw new Error("Failed to save messages");
+    }
+  }
+
+})

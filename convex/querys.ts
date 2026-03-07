@@ -41,4 +41,14 @@ export const getfilecontent = query({
   }
 })
 
+export const getmessages = query({
+  args: {
+    workspaceID: v.id("workspaces")
+  },
+  handler: async (ctx, args) => {
+    const messagesdata = await ctx.db.query('messagesschema').withIndex('by_workspaceId', (q) => q.eq('workspaceId', args.workspaceID)).collect();
+    return messagesdata;
+  }
+})
+
 

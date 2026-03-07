@@ -2,10 +2,10 @@ import { create } from 'zustand'
 import { AgentComand } from '@/lib/type/agentresponstype'
 
 export interface FileNode {
-  id: string
+  _id: string
   name: string
   type: 'file' | 'folder'
-  children?: FileNode[]
+  childrean?: FileNode[]
 }
 
 interface EditorState {
@@ -21,31 +21,6 @@ interface EditorState {
   getFileContent: (fileId: string) => string
 
   applyAgentCommands: (commands: AgentComand[]) => void
-}
-
-const ensurePath = (
-  nodes: FileNode[],
-  parts: string[],
-  currentPath = '',
-): void => {
-  const [head, ...rest] = parts
-  const fullPath = currentPath ? `${currentPath}/${head}` : head
-
-  let node = nodes.find((n) => n.id === fullPath)
-
-  if (!node) {
-    node = {
-      id: fullPath,
-      name: head,
-      type: rest.length === 0 ? 'file' : 'folder',
-      children: rest.length ? [] : undefined,
-    }
-    nodes.push(node)
-  }
-
-  if (rest.length && node.children) {
-    ensurePath(node.children, rest, fullPath)
-  }
 }
 
 // Storage key for persistence

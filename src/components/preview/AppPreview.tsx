@@ -107,84 +107,104 @@ export const AppPreview: React.FC = () => {
     </html>`
 
   return (
-    <div className="h-full flex flex-col bg-panel">
-      {/* Preview Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-panel-header border-b border-panel-border">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Preview
-          </span>
-        </div>
+    <div className="h-full flex flex-col bg-[#1e1e2e] text-[#cdd6f4]">
+
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-2 bg-[#181825] border-b border-[#313244]">
+
+        <span className="text-xs font-medium text-[#a6adc8] uppercase tracking-wider">
+          Preview
+        </span>
+
         <div className="flex items-center gap-1">
+
           <button
-            onClick={() => setViewMode('desktop')}
+            onClick={() => setViewMode("desktop")}
             className={cn(
-              'p-1.5 rounded transition-colors',
-              viewMode === 'desktop'
-                ? 'bg-muted text-foreground'
-                : 'text-muted-foreground hover:text-foreground',
+              "p-1.5 rounded-md transition",
+              viewMode === "desktop"
+                ? "bg-[#313244] text-[#cdd6f4]"
+                : "text-[#a6adc8] hover:text-[#cdd6f4] hover:bg-[#313244]"
             )}
             title="Desktop view"
           >
             <Monitor size={16} />
           </button>
+
           <button
-            onClick={() => setViewMode('mobile')}
+            onClick={() => setViewMode("mobile")}
             className={cn(
-              'p-1.5 rounded transition-colors',
-              viewMode === 'mobile'
-                ? 'bg-muted text-foreground'
-                : 'text-muted-foreground hover:text-foreground',
+              "p-1.5 rounded-md transition",
+              viewMode === "mobile"
+                ? "bg-[#313244] text-[#cdd6f4]"
+                : "text-[#a6adc8] hover:text-[#cdd6f4] hover:bg-[#313244]"
             )}
             title="Mobile view"
           >
             <Smartphone size={16} />
           </button>
-          <div className="w-px h-4 bg-panel-border mx-1" />
+
+          <div className="w-px h-4 bg-[#313244] mx-1" />
+
           <button
             onClick={refreshPreview}
-            className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="p-1.5 rounded-md text-[#a6adc8] hover:text-[#cdd6f4] hover:bg-[#313244] transition"
             title="Refresh preview"
           >
-            <RefreshCw size={16} className={cn(isLoading && 'animate-spin')} />
+            <RefreshCw size={16} className={cn(isLoading && "animate-spin")} />
           </button>
+
           <button
-            className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="p-1.5 rounded-md text-[#a6adc8] hover:text-[#cdd6f4] hover:bg-[#313244] transition"
             title="Open in new tab"
           >
             <ExternalLink size={16} />
           </button>
+
         </div>
       </div>
 
-      {/* Preview URL Bar */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-panel border-b border-panel-border">
-        <div className="flex-1 flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md">
-          <span className="text-xs text-syntax-string">●</span>
-          <span className="text-sm text-muted-foreground font-mono">
+      {/* URL bar */}
+      <div className="flex items-center gap-2 px-4 py-2 bg-[#1e1e2e] border-b border-[#313244]">
+
+        <div className="flex-1 flex items-center gap-2 px-3 py-1.5 bg-[#313244] rounded-md">
+
+          <span className="text-xs text-[#a6e3a1]">●</span>
+
+          <span className="text-sm text-[#cdd6f4] font-mono">
             localhost:5173
           </span>
+
         </div>
+
       </div>
 
-      {/* Preview Content */}
-      <div className="flex-1 flex items-center justify-center p-4 bg-muted/30 overflow-hidden">
+      {/* Preview content */}
+      <div className="flex-1 flex items-center justify-center p-4 bg-[#181825] overflow-hidden">
+
         <div
           className={cn(
-            'bg-background rounded-lg overflow-hidden shadow-2xl transition-all duration-300 h-full',
-            viewMode === 'mobile' ? 'w-[375px]' : 'w-full',
+            "bg-white rounded-lg overflow-hidden shadow-2xl transition-all duration-300 h-full",
+            viewMode === "mobile" ? "w-[375px]" : "w-full"
           )}
         >
+
           {isLoading ? (
             <div className="h-full flex items-center justify-center">
+
               <div className="flex flex-col items-center gap-3">
-                <RefreshCw size={24} className="animate-spin text-primary" />
-                <span className="text-sm text-muted-foreground">
+
+                <RefreshCw size={24} className="animate-spin text-[#89b4fa]" />
+
+                <span className="text-sm text-[#a6adc8]">
                   Loading preview...
                 </span>
+
               </div>
+
             </div>
           ) : (
+
             <iframe
               key={previewKey}
               srcDoc={previewContent}
@@ -192,9 +212,12 @@ export const AppPreview: React.FC = () => {
               title="App Preview"
               sandbox="allow-scripts"
             />
+
           )}
+
         </div>
+
       </div>
-    </div>
-  )
+
+    </div>)
 }

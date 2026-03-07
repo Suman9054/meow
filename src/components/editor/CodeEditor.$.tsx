@@ -19,9 +19,12 @@ export const CodeEditor: React.FC = () => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-editor">
+    <div className="h-full flex flex-col bg-[#1e1e2e] text-[#cdd6f4]">
+
       <EditorTabs />
-      <div className="flex-1">
+
+      <div className="flex-1 bg-[#1e1e2e]">
+
         {activeFile ? (
           <Editor
             height="100%"
@@ -44,16 +47,26 @@ export const CodeEditor: React.FC = () => {
             }}
           />
         ) : (
-          <div className="h-full flex items-center justify-center text-muted-foreground">
-            <div className="text-center">
-              <p className="text-lg mb-2">No file selected</p>
-              <p className="text-sm">
+
+          <div className="h-full flex items-center justify-center text-[#a6adc8]">
+            <div className="text-center space-y-2">
+
+              <div className="text-3xl opacity-40">📂</div>
+
+              <p className="text-lg text-[#cdd6f4] font-medium">
+                No file selected
+              </p>
+
+              <p className="text-sm text-[#a6adc8]">
                 Select a file from the explorer to view its contents
               </p>
+
             </div>
           </div>
+
         )}
+
       </div>
-    </div>
-  )
+
+    </div>)
 }

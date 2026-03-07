@@ -5,6 +5,7 @@ import Header from '@/components/Header'
 const FaultyTerminal = lazy(() => import('@/components/faltyterminal'))
 import { api } from 'convex/_generated/api'
 import { useAction } from 'convex/react'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
 export const Route = createFileRoute('/')({ component: Home })
 
@@ -40,7 +41,7 @@ function Home() {
   }
 
   return (
-    <>
+    <ScrollArea className='h-screen w-full '>
       <Header />
       <div className="h-screen flex flex-col bg-slate-950">
         {/* Fixed Terminal Background */}
@@ -71,7 +72,7 @@ function Home() {
         <div className="fixed inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/60 to-slate-950/80 z-10" />
 
         {/* Main scrollable content */}
-        <div className="relative z-20 flex-grow overflow-y-auto flex flex-col ">
+        <div className="relative z-20 flex-grow  flex flex-col ">
           {/* Expandable space */}
           <div className="flex-grow flex flex-col items-center justify-center px-6">
             <p className="text-center text-sm text-slate-200 mt-6">
@@ -139,7 +140,7 @@ function Home() {
           <span>Workspace powered by TanStack Start.</span>
         </div>
       </footer>
-
-    </>
+      <ScrollBar orientation="vertical" className='h-3 rounded-lg bg-slate-950' />
+    </ScrollArea>
   )
 }
