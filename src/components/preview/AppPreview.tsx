@@ -108,23 +108,20 @@ export const AppPreview: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col bg-[#1e1e2e] text-[#cdd6f4]">
-
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-[#181825] border-b border-[#313244]">
-
         <span className="text-xs font-medium text-[#a6adc8] uppercase tracking-wider">
           Preview
         </span>
 
         <div className="flex items-center gap-1">
-
           <button
-            onClick={() => setViewMode("desktop")}
+            onClick={() => setViewMode('desktop')}
             className={cn(
-              "p-1.5 rounded-md transition",
-              viewMode === "desktop"
-                ? "bg-[#313244] text-[#cdd6f4]"
-                : "text-[#a6adc8] hover:text-[#cdd6f4] hover:bg-[#313244]"
+              'p-1.5 rounded-md transition',
+              viewMode === 'desktop'
+                ? 'bg-[#313244] text-[#cdd6f4]'
+                : 'text-[#a6adc8] hover:text-[#cdd6f4] hover:bg-[#313244]',
             )}
             title="Desktop view"
           >
@@ -132,12 +129,12 @@ export const AppPreview: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setViewMode("mobile")}
+            onClick={() => setViewMode('mobile')}
             className={cn(
-              "p-1.5 rounded-md transition",
-              viewMode === "mobile"
-                ? "bg-[#313244] text-[#cdd6f4]"
-                : "text-[#a6adc8] hover:text-[#cdd6f4] hover:bg-[#313244]"
+              'p-1.5 rounded-md transition',
+              viewMode === 'mobile'
+                ? 'bg-[#313244] text-[#cdd6f4]'
+                : 'text-[#a6adc8] hover:text-[#cdd6f4] hover:bg-[#313244]',
             )}
             title="Mobile view"
           >
@@ -151,7 +148,7 @@ export const AppPreview: React.FC = () => {
             className="p-1.5 rounded-md text-[#a6adc8] hover:text-[#cdd6f4] hover:bg-[#313244] transition"
             title="Refresh preview"
           >
-            <RefreshCw size={16} className={cn(isLoading && "animate-spin")} />
+            <RefreshCw size={16} className={cn(isLoading && 'animate-spin')} />
           </button>
 
           <button
@@ -160,51 +157,39 @@ export const AppPreview: React.FC = () => {
           >
             <ExternalLink size={16} />
           </button>
-
         </div>
       </div>
 
       {/* URL bar */}
       <div className="flex items-center gap-2 px-4 py-2 bg-[#1e1e2e] border-b border-[#313244]">
-
         <div className="flex-1 flex items-center gap-2 px-3 py-1.5 bg-[#313244] rounded-md">
-
           <span className="text-xs text-[#a6e3a1]">●</span>
 
           <span className="text-sm text-[#cdd6f4] font-mono">
             localhost:5173
           </span>
-
         </div>
-
       </div>
 
       {/* Preview content */}
       <div className="flex-1 flex items-center justify-center p-4 bg-[#181825] overflow-hidden">
-
         <div
           className={cn(
-            "bg-white rounded-lg overflow-hidden shadow-2xl transition-all duration-300 h-full",
-            viewMode === "mobile" ? "w-[375px]" : "w-full"
+            'bg-white rounded-lg overflow-hidden shadow-2xl transition-all duration-300 h-full',
+            viewMode === 'mobile' ? 'w-[375px]' : 'w-full',
           )}
         >
-
           {isLoading ? (
             <div className="h-full flex items-center justify-center">
-
               <div className="flex flex-col items-center gap-3">
-
                 <RefreshCw size={24} className="animate-spin text-[#89b4fa]" />
 
                 <span className="text-sm text-[#a6adc8]">
                   Loading preview...
                 </span>
-
               </div>
-
             </div>
           ) : (
-
             <iframe
               key={previewKey}
               srcDoc={previewContent}
@@ -212,12 +197,9 @@ export const AppPreview: React.FC = () => {
               title="App Preview"
               sandbox="allow-scripts"
             />
-
           )}
-
         </div>
-
       </div>
-
-    </div>)
+    </div>
+  )
 }

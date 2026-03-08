@@ -25,7 +25,7 @@ function Home() {
     try {
       // Create a new workspace in the database
       const workspaceid = await workspacecreate({ user: '123456789' })
-      console.log("created workspace with id", workspaceid)
+      console.log('created workspace with id', workspaceid)
       // Navigate to workspace with the prompt as initial state
 
       await navigate({
@@ -41,7 +41,7 @@ function Home() {
   }
 
   return (
-    <ScrollArea className='h-screen w-full '>
+    <ScrollArea className="h-screen w-full ">
       <Header />
       <div className="h-screen flex flex-col bg-slate-950">
         {/* Fixed Terminal Background */}
@@ -76,14 +76,14 @@ function Home() {
           {/* Expandable space */}
           <div className="flex-grow flex flex-col items-center justify-center px-6">
             <p className="text-center text-sm text-slate-200 mt-6">
-              Welcome to AI Code Studio! Start by describing your project idea below.
+              Welcome to AI Code Studio! Start by describing your project idea
+              below.
             </p>
           </div>
 
           {/* Chat Section */}
           <div className="px-6 py-6">
             <div className="max-w-3xl mx-auto w-full flex flex-col gap-4">
-
               <form
                 onSubmit={handleSubmit}
                 className="rounded-2xl border border-cyan-500/40 bg-slate-900/60 backdrop-blur-sm p-4 md:p-5 shadow-2xl shadow-cyan-500/20 hover:border-cyan-400/60 hover:bg-slate-900/80 transition-all"
@@ -140,7 +140,10 @@ function Home() {
           <span>Workspace powered by TanStack Start.</span>
         </div>
       </footer>
-      <ScrollBar orientation="vertical" className='h-3 rounded-lg bg-slate-950' />
+      <ScrollBar
+        orientation="vertical"
+        className="h-3 rounded-lg bg-slate-950"
+      />
     </ScrollArea>
   )
 }

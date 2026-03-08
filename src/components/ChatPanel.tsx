@@ -7,7 +7,6 @@ import {
   Loader2,
   AlertCircle,
   ChevronDown,
-  Terminal,
   Wrench,
   CheckCircle2,
   Clock,
@@ -15,21 +14,23 @@ import {
 import { useChatStore, useSendChatStore } from '@/stores/chatStore'
 import { cn } from '@/lib/utils'
 import { fetchServerSentEvents, useChat } from '@tanstack/ai-react'
-import { clientTools } from '@tanstack/ai-client'
+import { clientTools, generateMessageId } from '@tanstack/ai-client'
 import {
   commandExecutorTool,
+  frontenddesignskill,
   makePathTool,
   writeFileTool,
 } from '@/lib/tools/tools'
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import rehypeHighlight from "rehype-highlight"
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeHighlight from 'rehype-highlight'
 import { ScrollArea, ScrollBar } from './ui/scroll-area'
-import { useMutation } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { useConvexMutation } from '@convex-dev/react-query'
+import { convexQuery } from '@convex-dev/react-query'
 import { api } from 'convex/_generated/api'
 import { Id } from 'convex/_generated/dataModel'
+import { useAction } from 'convex/react'
 
 /* ─── Typing indicator dots ──────────────────────────────────────────────── */
 const TypingDots = () => (
@@ -66,26 +67,38 @@ const ToolCallCard = ({ part }: { part: any }) => {
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-[#1e1e2e]/60 transition-colors text-left"
       >
-        <span className={cn(
-          "flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center",
-          isDone ? "bg-[#a6e3a1]/20" : "bg-[#f9e2af]/20"
-        )}>
-          {isDone
-            ? <CheckCircle2 size={11} className="text-[#a6e3a1]" />
-            : <Clock size={11} className="text-[#f9e2af] animate-pulse" />
-          }
+        <span
+          className={cn(
+            'flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center',
+            isDone ? 'bg-[#a6e3a1]/20' : 'bg-[#f9e2af]/20',
+          )}
+        >
+          {isDone ? (
+            <CheckCircle2 size={11} className="text-[#a6e3a1]" />
+          ) : (
+            <Clock size={11} className="text-[#f9e2af] animate-pulse" />
+          )}
         </span>
         <Wrench size={11} className="text-[#cba6f7] flex-shrink-0" />
-        <span className="text-[#cba6f7] font-semibold flex-1 truncate">{part.name}</span>
-        <span className={cn(
-          "px-1.5 py-0.5 rounded text-[10px] font-medium",
-          isDone ? "bg-[#a6e3a1]/10 text-[#a6e3a1]" : "bg-[#f9e2af]/10 text-[#f9e2af]"
-        )}>
-          {isDone ? "done" : part.state}
+        <span className="text-[#cba6f7] font-semibold flex-1 truncate">
+          {part.name}
+        </span>
+        <span
+          className={cn(
+            'px-1.5 py-0.5 rounded text-[10px] font-medium',
+            isDone
+              ? 'bg-[#a6e3a1]/10 text-[#a6e3a1]'
+              : 'bg-[#f9e2af]/10 text-[#f9e2af]',
+          )}
+        >
+          {isDone ? 'done' : part.state}
         </span>
         <ChevronDown
           size={12}
-          className={cn("text-[#6c7086] transition-transform duration-200", open && "rotate-180")}
+          className={cn(
+            'text-[#6c7086] transition-transform duration-200',
+            open && 'rotate-180',
+          )}
         />
       </button>
 
@@ -94,7 +107,9 @@ const ToolCallCard = ({ part }: { part: any }) => {
         <div className="border-t border-[#313244] divide-y divide-[#313244]">
           {/* Args */}
           <div className="px-3 py-2 space-y-1">
-            <p className="text-[10px] uppercase tracking-widest text-[#6c7086] mb-1.5">Arguments</p>
+            <p className="text-[10px] uppercase tracking-widest text-[#6c7086] mb-1.5">
+              Arguments
+            </p>
             <pre className="text-[#cdd6f4] overflow-x-auto text-[11px] leading-relaxed">
               {JSON.stringify(part.arguments, null, 2)}
             </pre>
@@ -102,7 +117,9 @@ const ToolCallCard = ({ part }: { part: any }) => {
           {/* Output */}
           {part.output !== undefined && (
             <div className="px-3 py-2 space-y-1">
-              <p className="text-[10px] uppercase tracking-widest text-[#6c7086] mb-1.5">Output</p>
+              <p className="text-[10px] uppercase tracking-widest text-[#6c7086] mb-1.5">
+                Output
+              </p>
               <pre className="text-[#a6e3a1] overflow-x-auto text-[11px] leading-relaxed">
                 {JSON.stringify(part.output, null, 2)}
               </pre>
@@ -127,8 +144,14 @@ const ThinkingBlock = ({ content }: { content: string }) => {
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#cba6f7] opacity-75" />
           <span className="relative inline-flex rounded-full h-2 w-2 bg-[#cba6f7]/50" />
         </span>
-        <span>Thinking{open ? "" : "…"}</span>
-        <ChevronDown size={10} className={cn("transition-transform duration-150", open && "rotate-180")} />
+        <span>Thinking{open ? '' : '…'}</span>
+        <ChevronDown
+          size={10}
+          className={cn(
+            'transition-transform duration-150',
+            open && 'rotate-180',
+          )}
+        />
       </button>
       {open && (
         <div className="mt-1.5 pl-3 border-l-2 border-[#cba6f7]/30 text-[11px] text-[#6c7086] italic leading-relaxed">
@@ -146,50 +169,52 @@ const AIMessage = ({ message }: { message: any }) => (
 
     <div className="flex-1 min-w-0 space-y-0.5">
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-[11px] font-semibold text-[#89b4fa] tracking-wide">Assistant</span>
+        <span className="text-[11px] font-semibold text-[#89b4fa] tracking-wide">
+          Assistant
+        </span>
         <span className="text-[10px] text-[#45475a]">just now</span>
       </div>
 
       <div className="rounded-2xl rounded-tl-sm bg-[#24273a] border border-[#313244] px-4 py-3 shadow-lg shadow-black/20">
         {message.parts.map((part: any, idx: number) => {
-          if (part.type === "thinking") {
+          if (part.type === 'thinking') {
             return <ThinkingBlock key={idx} content={part.content} />
           }
 
-          if (part.type === "text") {
+          if (part.type === 'text') {
             return (
               <div
                 key={idx}
                 className={cn(
-                  "prose prose-invert max-w-none text-sm leading-relaxed",
+                  'prose prose-invert max-w-none text-sm leading-relaxed',
                   // Typography
-                  "[&_p]:text-[#cdd6f4] [&_p]:my-1.5",
-                  "[&_h1]:text-[#89b4fa] [&_h1]:text-lg [&_h1]:font-bold [&_h1]:mt-3 [&_h1]:mb-1.5",
-                  "[&_h2]:text-[#89b4fa] [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-1",
-                  "[&_h3]:text-[#cba6f7] [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-2 [&_h3]:mb-0.5",
+                  '[&_p]:text-[#cdd6f4] [&_p]:my-1.5',
+                  '[&_h1]:text-[#89b4fa] [&_h1]:text-lg [&_h1]:font-bold [&_h1]:mt-3 [&_h1]:mb-1.5',
+                  '[&_h2]:text-[#89b4fa] [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-1',
+                  '[&_h3]:text-[#cba6f7] [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-2 [&_h3]:mb-0.5',
                   // Lists
-                  "[&_ul]:my-1.5 [&_ul]:pl-4 [&_ul>li]:text-[#cdd6f4] [&_ul>li]:my-0.5",
-                  "[&_ol]:my-1.5 [&_ol]:pl-4 [&_ol>li]:text-[#cdd6f4] [&_ol>li]:my-0.5",
-                  "[&_li::marker]:text-[#89b4fa]",
+                  '[&_ul]:my-1.5 [&_ul]:pl-4 [&_ul>li]:text-[#cdd6f4] [&_ul>li]:my-0.5',
+                  '[&_ol]:my-1.5 [&_ol]:pl-4 [&_ol>li]:text-[#cdd6f4] [&_ol>li]:my-0.5',
+                  '[&_li::marker]:text-[#89b4fa]',
                   // Inline code
-                  "[&_code]:bg-[#181825] [&_code]:text-[#f38ba8] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-[12px] [&_code]:font-mono [&_code]:border [&_code]:border-[#313244]",
+                  '[&_code]:bg-[#181825] [&_code]:text-[#f38ba8] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-[12px] [&_code]:font-mono [&_code]:border [&_code]:border-[#313244]',
                   // Code blocks
-                  "[&_pre]:bg-[#181825] [&_pre]:border [&_pre]:border-[#313244] [&_pre]:rounded-xl [&_pre]:p-3 [&_pre]:my-2 [&_pre]:overflow-x-auto",
-                  "[&_pre_code]:bg-transparent [&_pre_code]:border-0 [&_pre_code]:p-0 [&_pre_code]:text-[#cdd6f4] [&_pre_code]:text-[12px]",
+                  '[&_pre]:bg-[#181825] [&_pre]:border [&_pre]:border-[#313244] [&_pre]:rounded-xl [&_pre]:p-3 [&_pre]:my-2 [&_pre]:overflow-x-auto',
+                  '[&_pre_code]:bg-transparent [&_pre_code]:border-0 [&_pre_code]:p-0 [&_pre_code]:text-[#cdd6f4] [&_pre_code]:text-[12px]',
                   // Blockquote
-                  "[&_blockquote]:border-l-2 [&_blockquote]:border-[#89b4fa] [&_blockquote]:pl-3 [&_blockquote]:my-2 [&_blockquote]:text-[#a6adc8] [&_blockquote]:italic",
+                  '[&_blockquote]:border-l-2 [&_blockquote]:border-[#89b4fa] [&_blockquote]:pl-3 [&_blockquote]:my-2 [&_blockquote]:text-[#a6adc8] [&_blockquote]:italic',
                   // Table
-                  "[&_table]:w-full [&_table]:text-sm [&_table]:my-2 [&_table]:border-collapse",
-                  "[&_th]:bg-[#181825] [&_th]:text-[#89b4fa] [&_th]:px-3 [&_th]:py-1.5 [&_th]:text-left [&_th]:border [&_th]:border-[#313244]",
-                  "[&_td]:px-3 [&_td]:py-1.5 [&_td]:border [&_td]:border-[#313244] [&_td]:text-[#cdd6f4]",
-                  "[&_tr:nth-child(even)_td]:bg-[#1e1e2e]",
+                  '[&_table]:w-full [&_table]:text-sm [&_table]:my-2 [&_table]:border-collapse',
+                  '[&_th]:bg-[#181825] [&_th]:text-[#89b4fa] [&_th]:px-3 [&_th]:py-1.5 [&_th]:text-left [&_th]:border [&_th]:border-[#313244]',
+                  '[&_td]:px-3 [&_td]:py-1.5 [&_td]:border [&_td]:border-[#313244] [&_td]:text-[#cdd6f4]',
+                  '[&_tr:nth-child(even)_td]:bg-[#1e1e2e]',
                   // Links
-                  "[&_a]:text-[#89b4fa] [&_a]:underline [&_a:hover]:text-[#b4d0f7]",
+                  '[&_a]:text-[#89b4fa] [&_a]:underline [&_a:hover]:text-[#b4d0f7]',
                   // Strong / em
-                  "[&_strong]:text-[#f5c2e7] [&_strong]:font-semibold",
-                  "[&_em]:text-[#a6adc8]",
+                  '[&_strong]:text-[#f5c2e7] [&_strong]:font-semibold',
+                  '[&_em]:text-[#a6adc8]',
                   // HR
-                  "[&_hr]:border-[#313244] [&_hr]:my-3",
+                  '[&_hr]:border-[#313244] [&_hr]:my-3',
                 )}
               >
                 <ReactMarkdown
@@ -202,7 +227,7 @@ const AIMessage = ({ message }: { message: any }) => (
             )
           }
 
-          if (part.type === "tool-call") {
+          if (part.type === 'tool-call') {
             return <ToolCallCard key={idx} part={part} />
           }
 
@@ -222,7 +247,7 @@ const UserMessage = ({ message }: { message: any }) => (
       </div>
       <div className="bg-gradient-to-br from-[#89b4fa] to-[#74c7ec] text-[#1e1e2e] px-4 py-2.5 rounded-2xl rounded-br-sm text-sm font-medium shadow-lg shadow-[#89b4fa]/10 leading-relaxed">
         {message.parts.map((part: any, idx: number) =>
-          part.type === "text" ? <span key={idx}>{part.content}</span> : null
+          part.type === 'text' ? <span key={idx}>{part.content}</span> : null,
         )}
       </div>
     </div>
@@ -251,8 +276,11 @@ const EmptyState = () => (
       </p>
     </div>
     <div className="flex flex-wrap gap-2 justify-center mt-1">
-      {["Write a script", "Explain code", "Create a file"].map((s) => (
-        <span key={s} className="px-2.5 py-1 rounded-lg bg-[#313244] text-[#a6adc8] text-[11px] border border-[#45475a]">
+      {['Write a script', 'Explain code', 'Create a file'].map((s) => (
+        <span
+          key={s}
+          className="px-2.5 py-1 rounded-lg bg-[#313244] text-[#a6adc8] text-[11px] border border-[#45475a]"
+        >
           {s}
         </span>
       ))}
@@ -266,21 +294,36 @@ export const ChatPanel: React.FC = () => {
   const [input, setInput] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+
   const { setIsSend, error, setError } = useSendChatStore()
-  const filemute = useMutation({
-    mutationFn: useConvexMutation(api.workspace.savemessages)
-  })
+  const messagesave = useAction(api.convextools.savemessagesaction)
 
+  const initialmessages = useSuspenseQuery(
+    convexQuery(api.querys.getmessages, {
+      workspaceID: 'jd760ygcxnzs2h2vapetkhp0fx828xvd' as Id<'workspaces'>,
+    }),
+  )
 
-  const clienttools = clientTools(commandExecutorTool, makePathTool, writeFileTool)
+  const clienttools = clientTools(
+    commandExecutorTool,
+    makePathTool,
+    writeFileTool,
+    frontenddesignskill,
+  )
   const aiclient = useChat({
     connection: fetchServerSentEvents('/api/agent'),
     tools: clienttools,
+    initialMessages: initialmessages.data,
 
     onFinish(message) {
-      filemute.mutate({
-        workspaceid: 'jd760ygcxnzs2h2vapetkhp0fx828xvd' as Id<"workspaces">,
-        messages: message
+      messagesave({
+        workspaceid: 'jd760ygcxnzs2h2vapetkhp0fx828xvd' as Id<'workspaces'>,
+        messages: {
+          ...message,
+          createdAt: message.createdAt
+            ? new Date(message.createdAt).getTime()
+            : Date.now(),
+        },
       })
     },
   })
@@ -295,11 +338,20 @@ export const ChatPanel: React.FC = () => {
       return () => clearTimeout(timer)
     }
   }, [error, setError])
-
+  const messageid = generateMessageId()
   const submit = () => {
     if (input.trim() && !aiclient.isLoading) {
       setIsSend(false)
       aiclient.sendMessage(input.trim())
+      messagesave({
+        workspaceid: 'jd760ygcxnzs2h2vapetkhp0fx828xvd' as Id<'workspaces'>,
+        messages: {
+          id: messageid,
+          role: 'user',
+          parts: [{ type: 'text', content: input }],
+          createdAt: Date.now(),
+        },
+      })
       setInput('')
     }
   }
@@ -319,16 +371,16 @@ export const ChatPanel: React.FC = () => {
   const isEmpty = aiclient.messages.length === 0
 
   return (
-
     <div className="h-full flex flex-col bg-[#1e1e2e] text-[#cdd6f4]">
-
       {/* ── Header ── */}
       <div className="flex items-center justify-between px-4 py-2.5 bg-[#181825] border-b border-[#313244] flex-shrink-0">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#89b4fa] to-[#cba6f7] flex items-center justify-center">
             <Sparkles size={13} className="text-[#1e1e2e]" />
           </div>
-          <span className="font-semibold text-sm text-[#cdd6f4]">AI Assistant</span>
+          <span className="font-semibold text-sm text-[#cdd6f4]">
+            AI Assistant
+          </span>
           {aiclient.isLoading && (
             <span className="flex items-center gap-1 text-[11px] text-[#89b4fa]">
               <Loader2 size={11} className="animate-spin" />
@@ -339,7 +391,10 @@ export const ChatPanel: React.FC = () => {
 
         <div className="flex items-center gap-0.5">
           <button
-            onClick={() => { clearMessages(); setError(null) }}
+            onClick={() => {
+              clearMessages()
+              setError(null)
+            }}
             disabled={aiclient.isLoading}
             title="Clear chat"
             className="p-1.5 rounded-md text-[#6c7086] hover:text-[#f38ba8] hover:bg-[#313244] transition-colors disabled:opacity-40"
@@ -355,7 +410,6 @@ export const ChatPanel: React.FC = () => {
       {/* ── Messages — ScrollArea ONLY wraps this section ── */}
       <ScrollArea className="flex-1 min-h-0">
         <div className="px-4 py-5 space-y-5">
-
           {isEmpty && <EmptyState />}
 
           {error && (
@@ -370,9 +424,11 @@ export const ChatPanel: React.FC = () => {
           )}
 
           {aiclient.messages.map((message) =>
-            message.role === "assistant"
-              ? <AIMessage key={message.id} message={message} />
-              : <UserMessage key={message.id} message={message} />
+            message.role === 'assistant' ? (
+              <AIMessage key={message.id} message={message} />
+            ) : (
+              <UserMessage key={message.id} message={message} />
+            ),
           )}
 
           {aiclient.isLoading && (
@@ -406,33 +462,36 @@ export const ChatPanel: React.FC = () => {
             rows={1}
             disabled={aiclient.isLoading}
             className={cn(
-              "w-full px-4 py-3 pr-12 bg-[#24273a] border border-[#313244] rounded-2xl resize-none text-sm",
-              "placeholder:text-[#45475a]",
-              "focus:outline-none focus:border-[#89b4fa]/60 focus:ring-2 focus:ring-[#89b4fa]/15",
-              "disabled:opacity-50 transition-all leading-relaxed"
+              'w-full px-4 py-3 pr-12 bg-[#24273a] border border-[#313244] rounded-2xl resize-none text-sm',
+              'placeholder:text-[#45475a]',
+              'focus:outline-none focus:border-[#89b4fa]/60 focus:ring-2 focus:ring-[#89b4fa]/15',
+              'disabled:opacity-50 transition-all leading-relaxed',
             )}
-            style={{ minHeight: "48px", maxHeight: "120px" }}
+            style={{ minHeight: '48px', maxHeight: '120px' }}
           />
 
           <button
             onClick={handleSubmit}
             disabled={!input.trim() || aiclient.isLoading}
             className={cn(
-              "absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl flex items-center justify-center transition-all",
+              'absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl flex items-center justify-center transition-all',
               input.trim() && !aiclient.isLoading
-                ? "bg-gradient-to-br from-[#89b4fa] to-[#74c7ec] text-[#1e1e2e] shadow-lg shadow-[#89b4fa]/20 hover:scale-105 active:scale-95"
-                : "bg-[#313244] text-[#45475a] cursor-not-allowed"
+                ? 'bg-gradient-to-br from-[#89b4fa] to-[#74c7ec] text-[#1e1e2e] shadow-lg shadow-[#89b4fa]/20 hover:scale-105 active:scale-95'
+                : 'bg-[#313244] text-[#45475a] cursor-not-allowed',
             )}
           >
-            {aiclient.isLoading
-              ? <Loader2 size={15} className="animate-spin" />
-              : <Send size={15} />
-            }
+            {aiclient.isLoading ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              <Send size={15} />
+            )}
           </button>
         </div>
 
         <p className="text-[10px] text-[#45475a] mt-2 text-center tracking-wide">
-          {aiclient.isLoading ? "✦ Generating response…" : "↵ Send  ⇧↵ New line"}
+          {aiclient.isLoading
+            ? '✦ Generating response…'
+            : '↵ Send  ⇧↵ New line'}
         </p>
       </div>
     </div>

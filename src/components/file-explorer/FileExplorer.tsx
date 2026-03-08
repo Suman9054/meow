@@ -8,7 +8,6 @@ import { api } from 'convex/_generated/api'
 import { Id } from 'convex/_generated/dataModel'
 import { Tree, Folder, File } from '../ui/file-tree'
 
-
 const reandernode = (node: FileNode) => {
   if (node.type === 'folder') {
     return (
@@ -26,15 +25,16 @@ const reandernode = (node: FileNode) => {
 
 export const FileExplorer: React.FC = () => {
   const mounted = useMounted()
-  const fileTree = useQuery(convexQuery(api.querys.getallfiletree, {
-    workspaceID: 'jd760ygcxnzs2h2vapetkhp0fx828xvd' as Id<"workspaces">
-  }))
+  const fileTree = useQuery(
+    convexQuery(api.querys.getallfiletree, {
+      workspaceID: 'jd760ygcxnzs2h2vapetkhp0fx828xvd' as Id<'workspaces'>,
+    }),
+  )
 
   if (!mounted) return null
 
   return (
     <div className="h-full flex flex-col bg-[#1e1e2e] text-[#cdd6f4]">
-
       {/* Header */}
       <div className="px-4 py-3 border-b border-[#313244] bg-[#181825]">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-[#a6adc8]">
@@ -48,6 +48,6 @@ export const FileExplorer: React.FC = () => {
           {fileTree.data?.map((node) => reandernode(node))}
         </Tree>
       </div>
-
-    </div>)
+    </div>
+  )
 }

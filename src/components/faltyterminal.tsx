@@ -432,8 +432,7 @@ function FaultyTerminal({
           '<div style="color: #999; padding: 20px;">WebGL not supported</div>'
       }
     }
-  }, [
-  ])
+  }, [])
 
   return (
     <div

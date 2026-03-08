@@ -8,7 +8,6 @@ import { ChatPanel } from '@/components/ChatPanel'
 import { TopBar } from './TopBar'
 import { useUIStore } from '@/stores/uiStore'
 
-
 export const MainLayout: React.FC = () => {
   const { activePanel, isChatOpen, isSidebarOpen } = useUIStore()
 
@@ -69,7 +68,6 @@ export const MainLayout: React.FC = () => {
           )}
         </PanelGroup>
       </div>
-
     </div>
   )
 }

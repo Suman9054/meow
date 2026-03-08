@@ -28,7 +28,6 @@ interface EditorState {
 // Load persisted state from localStorage
 const loadPersistedState = (): Partial<EditorState> | null => {
   try {
-
   } catch (error) {
     console.error('Failed to load persisted editor state:', error)
   }
